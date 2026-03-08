@@ -45,7 +45,7 @@
 
         /* Premium Glassmorphism */
         .glass-panel {
-            background: rgba(8, 8, 10, 0.75);
+            background: rgba(8, 8, 10, 0.85);
             backdrop-filter: blur(25px) saturate(180%);
             -webkit-backdrop-filter: blur(25px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -71,13 +71,13 @@
         .ql-container.ql-snow {
             border: none !important;
             color: #f1f5f9;
-            font-size: 0.95rem; /* Reduced from 1.1rem for a more refined look */
+            font-size: 0.95rem;
             font-weight: 300;
             letter-spacing: 0.015em;
         }
 
         .ql-editor { 
-            padding: 2.5rem; 
+            padding: 2rem 2.5rem; 
             line-height: 1.7;
             font-family: 'Inter', sans-serif;
         }
@@ -94,7 +94,7 @@
         }
 
         .toast-enter { transform: translateY(20px); opacity: 0; }
-        .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         
         .pin-icon.pinned { color: #fbbf24; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4)); }
         
@@ -106,7 +106,7 @@
         .premium-btn {
             background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
             border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .premium-btn:hover {
             background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
@@ -135,6 +135,31 @@
             animation: shimmer 3s infinite;
         }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        .workspace-transition {
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Command Menu Styles */
+        #command-menu {
+            transform: translateY(10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #command-menu.active {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .command-item {
+            transition: all 0.2s ease;
+        }
+        .command-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            padding-left: 1.25rem;
+        }
     </style>
 </head>
 <body class="antialiased relative overflow-hidden bg-black text-gray-200">
@@ -143,9 +168,9 @@
     <div id="canvas-container" class="absolute inset-0 z-0 pointer-events-none"></div>
 
     <!-- CINEMATIC HOMEPAGE -->
-    <div id="homepage-overlay" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/30 transition-all duration-1000 ease-in-out">
+    <div id="homepage-overlay" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/30 transition-all duration-700 ease-in-out">
         <div class="flex flex-col items-center text-center px-6">
-            <div class="mb-6 opacity-0 animate-[fadeIn_1.5s_ease-out_forwards]">
+            <div class="mb-6">
                 <i class="ph ph-infinity text-4xl text-white/40 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"></i>
             </div>
             <h1 class="text-5xl md:text-8xl font-bold text-white mb-6 logo-glow" style="font-family: 'Cinzel', serif;">
@@ -168,10 +193,11 @@
     </div>
 
     <!-- PREMIUM WORKSPACE -->
-    <div id="workspace-overlay" class="absolute inset-0 z-10 flex w-full h-full p-3 md:p-4 gap-3 md:gap-4 bg-black/10 opacity-0 pointer-events-none transition-all duration-700">
+    <div id="workspace-overlay" class="workspace-transition absolute inset-0 z-10 flex w-full h-full p-3 md:p-4 gap-3 md:gap-4 bg-black/10 opacity-0 pointer-events-none">
         
         <!-- Premium Sidebar -->
         <aside class="glass-panel w-full md:w-72 flex-shrink-0 rounded-3xl flex flex-col overflow-hidden z-20 hidden md:flex" id="sidebar">
+            <!-- Header -->
             <div class="p-6 border-b border-white/5 flex items-center justify-between">
                 <div class="flex flex-col gap-0.5 cursor-pointer group" onclick="exitWorkspace()">
                     <div class="flex items-center gap-2.5">
@@ -183,11 +209,43 @@
                 <button onclick="toggleSidebar()" class="md:hidden text-gray-500"><i class="ph ph-x text-xl"></i></button>
             </div>
 
-            <div id="sidebar-content" class="flex flex-col flex-1 overflow-hidden">
-                <!-- Navigation UI -->
+            <!-- Main Content Area -->
+            <div id="sidebar-content" class="flex flex-col flex-1 overflow-hidden relative">
+                <!-- Navigation UI will be rendered here -->
             </div>
 
-            <div class="p-4 border-t border-white/5 text-[8px] text-gray-500 flex items-center justify-between tracking-[0.2em] uppercase bg-black/40">
+            <!-- Bottom Command Hub (Dropdown/Drop-up) -->
+            <div class="p-4 border-t border-white/5 relative bg-black/40">
+                <!-- Drop-up Menu -->
+                <div id="command-menu" class="absolute left-4 right-4 bottom-20 glass-panel rounded-2xl overflow-hidden border border-white/10 z-30">
+                    <button onclick="createNewDocument('root')" class="command-item w-full p-4 flex items-center gap-4 text-left border-b border-white/5">
+                        <i class="ph ph-plus-circle text-blue-400 text-lg"></i>
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-white">Initialize Record</span>
+                            <span class="text-[8px] text-gray-500 uppercase tracking-tighter">New text archival entry</span>
+                        </div>
+                    </button>
+                    <button onclick="openFolderModal()" class="command-item w-full p-4 flex items-center gap-4 text-left">
+                        <i class="ph ph-folder-plus text-blue-400 text-lg"></i>
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-bold uppercase tracking-widest text-white">Establish Sector</span>
+                            <span class="text-[8px] text-gray-500 uppercase tracking-tighter">New containment folder</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Main Toggle Button -->
+                <button id="command-toggle" onclick="toggleCommandMenu()" class="premium-btn w-full py-3.5 px-4 text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.3em] transition-all flex items-center justify-between group">
+                    <span class="flex items-center gap-3">
+                        <i class="ph ph-command text-base text-blue-400"></i>
+                        Initialize
+                    </span>
+                    <i class="ph ph-caret-up text-gray-500 group-hover:text-white transition-transform duration-300" id="command-caret"></i>
+                </button>
+            </div>
+
+            <!-- Footer Stats -->
+            <div class="p-4 border-t border-white/5 text-[8px] text-gray-500 flex items-center justify-between tracking-[0.2em] uppercase bg-black/60">
                 <span id="db-status" class="flex items-center gap-2">
                     <div class="w-1 h-1 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]" id="status-dot"></div> OFFLINE
                 </span>
@@ -274,6 +332,29 @@
         let currentFolderId = null;
         let currentDocumentId = null;
 
+        // Command Menu Logic
+        window.toggleCommandMenu = () => {
+            const menu = document.getElementById('command-menu');
+            const caret = document.getElementById('command-caret');
+            const isActive = menu.classList.toggle('active');
+            
+            if (isActive) {
+                caret.classList.add('rotate-180');
+            } else {
+                caret.classList.remove('rotate-180');
+            }
+        };
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('command-menu');
+            const toggle = document.getElementById('command-toggle');
+            if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+                menu.classList.remove('active');
+                document.getElementById('command-caret').classList.remove('rotate-180');
+            }
+        });
+
         // Exposed global functions
         window.enterWorkspace = () => {
             document.getElementById('homepage-overlay').style.opacity = '0';
@@ -281,7 +362,9 @@
             setTimeout(() => {
                 document.getElementById('homepage-overlay').classList.add('hidden');
                 document.getElementById('workspace-overlay').classList.remove('opacity-0', 'pointer-events-none');
-            }, 600);
+                // Ensure initial view is rendered
+                renderSidebar();
+            }, 500);
         };
         window.exitWorkspace = () => {
             document.getElementById('workspace-overlay').classList.add('opacity-0', 'pointer-events-none');
@@ -300,7 +383,10 @@
             document.getElementById('pin-btn').classList.add('hidden');
             renderSidebar();
             if(window.innerWidth < 768) toggleSidebar();
+            // Close command menu if open
+            document.getElementById('command-menu').classList.remove('active');
         };
+        
         window.saveDocument = async () => {
             const title = document.getElementById('doc-title').value.trim() || 'Untitled Record';
             const content = quill.root.innerHTML;
@@ -313,27 +399,30 @@
                 created_at: existing ? existing.created_at : new Date().toISOString() 
             };
             
-            if (!isLocalMode) {
-                await setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), id), data);
-            }
-            
             if(existing) Object.assign(existing, data); else documents.push(data);
             currentDocumentId = id;
             updateHeaderPinUI();
             renderSidebar();
-            showToast("Record Preserved", "success");
+            showToast("Archive Preserved", "success");
             document.getElementById('delete-btn').classList.remove('hidden');
             document.getElementById('pin-btn').classList.remove('hidden');
+
+            if (!isLocalMode) {
+                setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), id), data).catch(console.error);
+            }
         };
+
         window.deleteCurrentDocument = async () => {
             if(!currentDocumentId) return;
-            if(!isLocalMode) {
-                await deleteDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), currentDocumentId));
-            }
-            documents = documents.filter(d => d.id !== currentDocumentId);
+            const id = currentDocumentId;
+            documents = documents.filter(d => d.id !== id);
             createNewDocument(currentFolderId);
             showToast("Entry Purged", "success");
+            if(!isLocalMode) {
+                deleteDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), id)).catch(console.error);
+            }
         };
+
         window.openDocument = (id) => {
             const d = documents.find(d => d.id === id);
             if(!d) return;
@@ -347,27 +436,33 @@
             renderSidebar();
             if(window.innerWidth < 768) toggleSidebar();
         };
+
         window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('hidden');
+        
         window.openFolderModal = () => {
             document.getElementById('folder-modal').classList.remove('opacity-0', 'pointer-events-none');
             document.getElementById('folder-modal-content').classList.remove('scale-95');
+            document.getElementById('command-menu').classList.remove('active');
         };
+
         window.closeFolderModal = () => {
             document.getElementById('folder-modal').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('folder-modal-content').classList.add('scale-95');
         };
+
         window.submitNewFolder = async () => {
             const name = document.getElementById('folder-name-input').value.trim();
             if(!name) return;
             const newF = { id: generateId(), name, pinned: false, created_at: new Date().toISOString() };
-            if (!isLocalMode) {
-                await setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_folders'), newF.id), newF);
-            }
             folders.push(newF);
             closeFolderModal();
             renderSidebar();
-            showToast("Sector Initialized", "success");
+            showToast("Sector Established", "success");
+            if (!isLocalMode) {
+                setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_folders'), newF.id), newF).catch(console.error);
+            }
         };
+
         window.openFolder = (id) => {
             currentFolderId = id;
             renderSidebar();
@@ -507,7 +602,8 @@
                 'ql-video': 'Feed', 'ql-clean': 'Purge Styles'
             };
             Object.keys(tips).forEach(sel => {
-                document.querySelectorAll(`.${sel}`).forEach(el => el.setAttribute('title', tips[sel]));
+                const elements = document.querySelectorAll(`.${sel}`);
+                elements.forEach(el => el.setAttribute('title', tips[sel]));
             });
         }
 
@@ -518,9 +614,13 @@
                     if (user) { 
                         currentUser = user; 
                         isLocalMode = false; 
-                        document.getElementById('status-dot').style.backgroundColor = '#60a5fa';
-                        document.getElementById('status-dot').style.boxShadow = '0 0 8px #60a5fa';
-                        document.getElementById('db-status').innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_6px_#60a5fa]" id="status-dot"></div> UPLINK ESTABLISHED';
+                        const dot = document.getElementById('status-dot');
+                        if (dot) {
+                            dot.style.backgroundColor = '#60a5fa';
+                            dot.style.boxShadow = '0 0 8px #60a5fa';
+                        }
+                        const statusText = document.getElementById('db-status');
+                        if (statusText) statusText.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_6px_#60a5fa]" id="status-dot"></div> UPLINK ESTABLISHED';
                         loadAllData(); 
                     }
                 });
@@ -548,23 +648,20 @@
 
         function renderSidebar() {
             const container = document.getElementById('sidebar-content');
+            if (!container) return;
+            
             let html = '';
             const sorter = (a, b) => (a.pinned === b.pinned ? new Date(b.created_at) - new Date(a.created_at) : a.pinned ? -1 : 1);
 
             const activeFolder = folders.find(f => f.id === currentFolderId);
-            document.getElementById('current-loc-label').innerText = currentFolderId === 'root' ? 'Root Sector' : (activeFolder ? activeFolder.name : 'Root Sector');
+            const breadcrumbLabel = currentFolderId === 'root' ? 'Root Sector' : (activeFolder ? activeFolder.name : 'Root Sector');
+            const labelEl = document.getElementById('current-loc-label');
+            if(labelEl) labelEl.innerText = breadcrumbLabel;
 
             if (currentFolderId === null) {
+                // Main list view
                 html += `
-                    <div class="p-5 grid grid-cols-2 gap-2.5">
-                        <button onclick="createNewDocument('root')" class="premium-btn py-3 px-2 text-[8px] tracking-[0.2em] uppercase rounded-xl flex flex-col items-center justify-center gap-1.5 text-blue-200">
-                            <i class="ph ph-plus-circle text-lg"></i> Record
-                        </button>
-                        <button onclick="openFolderModal()" class="premium-btn py-3 px-2 text-[8px] tracking-[0.2em] uppercase rounded-xl flex flex-col items-center justify-center gap-1.5 text-blue-200">
-                            <i class="ph ph-folder-plus text-lg"></i> Sector
-                        </button>
-                    </div>
-                    <div class="flex-1 overflow-y-auto px-3.5 pb-8 space-y-1">
+                    <div class="flex-1 overflow-y-auto px-3.5 pb-8 pt-6 space-y-1">
                         <div onclick="openFolder('root')" class="sidebar-item p-3.5 rounded-xl border border-transparent hover:bg-white/[0.03] cursor-pointer flex justify-between items-center transition-all group ${currentFolderId === 'root' ? 'active bg-white/[0.04]' : ''}">
                             <div class="flex items-center gap-3">
                                 <i class="ph ph-archive text-gray-500 text-lg"></i>
@@ -572,7 +669,7 @@
                             </div>
                             <div class="flex items-center gap-3.5">
                                 <span class="text-[8px] text-gray-600 font-mono">${documents.filter(d => d.folderId === 'root').length}</span>
-                                <i class="ph ph-plus text-xs text-blue-400 quick-action opacity-0 group-hover:opacity-100 transition-all hover:scale-125" title="New Entry in Root" onclick="event.stopPropagation(); createNewDocument('root')"></i>
+                                <i class="ph ph-plus text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-125" title="New Entry in Root" onclick="event.stopPropagation(); createNewDocument('root')"></i>
                             </div>
                         </div>
                 `;
@@ -586,7 +683,7 @@
                                 <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-300 truncate max-w-[120px]">${f.name}</span>
                             </div>
                             <div class="flex items-center gap-3.5">
-                                <i class="ph ph-plus text-xs text-blue-400 quick-action opacity-0 group-hover:opacity-100 transition-all hover:scale-125" title="New Entry in ${f.name}" onclick="event.stopPropagation(); createNewDocument('${f.id}')"></i>
+                                <i class="ph ph-plus text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-125" title="New Entry in ${f.name}" onclick="event.stopPropagation(); createNewDocument('${f.id}')"></i>
                                 <span class="text-[8px] text-gray-600 font-mono">${count}</span>
                                 <i class="ph ph-push-pin ${f.pinned ? 'ph-fill pinned' : 'text-gray-700 hover:text-yellow-400'} transition-all" onclick="toggleFolderPin(event, '${f.id}')"></i>
                             </div>
@@ -595,20 +692,18 @@
                 });
                 html += `</div>`;
             } else {
+                // Focused folder view
                 const folderName = currentFolderId === 'root' ? 'Root Archive' : activeFolder?.name;
                 html += `
                     <div class="p-5 border-b border-white/5 bg-black/40">
-                        <button onclick="goBackToFolders()" class="text-gray-500 hover:text-white text-[8px] tracking-[0.25em] uppercase flex items-center gap-2.5 transition-colors mb-5">
-                            <i class="ph ph-arrow-left text-sm"></i> Sectors
+                        <button onclick="goBackToFolders()" class="text-gray-500 hover:text-white text-[8px] tracking-[0.25em] uppercase flex items-center gap-2.5 transition-colors">
+                            <i class="ph ph-arrow-left text-sm"></i> Back to Sectors
                         </button>
-                        <div class="flex flex-col gap-1 mb-5">
-                            <h3 class="text-[9px] text-gray-400 uppercase tracking-[0.2em] font-medium flex items-center gap-2.5">
-                                <i class="ph ph-folder-open text-blue-400 text-base"></i> ${folderName}
-                            </h3>
-                        </div>
-                        <button onclick="createNewDocument('${currentFolderId}')" class="premium-btn w-full py-3.5 text-[8px] font-bold uppercase tracking-[0.2em] text-blue-300 rounded-xl transition-all flex items-center justify-center gap-2.5">
-                            <i class="ph ph-plus-circle text-base"></i> New Entry
-                        </button>
+                    </div>
+                    <div class="p-6 bg-black/10">
+                        <h3 class="text-[9px] text-gray-400 uppercase tracking-[0.2em] font-medium flex items-center gap-2.5 mb-2">
+                            <i class="ph ph-folder-open text-blue-400 text-base"></i> ${folderName}
+                        </h3>
                     </div>
                     <div class="flex-1 overflow-y-auto p-3.5 space-y-1.5">
                 `;
@@ -632,6 +727,7 @@
 
         function showToast(m, t = 'info') {
             const container = document.getElementById('toast-container');
+            if (!container) return;
             const toast = document.createElement('div');
             toast.className = `glass-panel ${t === 'success' ? 'border-blue-500/20' : 'border-red-900/20'} border rounded-2xl p-4 flex items-center gap-3 toast-enter-active pointer-events-auto shadow-2xl`;
             toast.innerHTML = `<i class="ph ph-sparkle text-blue-400 text-lg"></i><p class="text-[9px] font-bold uppercase tracking-[0.15em] text-gray-200">${m}</p>`;
