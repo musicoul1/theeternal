@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Eternal</title>
+    <title>The Eternal | Secure Archival Core</title>
     
     <!-- PWA Meta -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -153,7 +153,7 @@
             <p class="text-white font-semibold tracking-[0.4em] md:tracking-[0.6em] mb-10 md:mb-12 uppercase text-[9px] md:text-xs opacity-90">Infinite Archival Core</p>
             
             <button onclick="enterWorkspace()" class="premium-btn group py-5 md:py-6 px-10 md:px-16 text-white rounded-full font-bold transition-all backdrop-blur-md uppercase tracking-[0.4em] text-[10px] md:text-[11px] shadow-2xl relative overflow-hidden">
-                <span class="relative z-10 flex items-center gap-4">Enter Workspace <i class="ph ph-arrow-right"></i></span>
+                <span class="relative z-10 flex items-center gap-4" id="enter-btn-text">Sign In to Enter <i class="ph ph-lock-key"></i></span>
                 <div class="shimmer absolute inset-0"></div>
             </button>
         </div>
@@ -212,10 +212,10 @@
                     </div>
                     <div class="flex flex-col min-w-0">
                         <span id="user-display-name" class="text-[9px] text-white/80 font-bold truncate tracking-wider uppercase">Guest User</span>
-                        <span id="user-email" class="text-[7px] text-slate-500 truncate lowercase">anonymous@archival.core</span>
+                        <span id="user-email" class="text-[7px] text-slate-500 truncate lowercase">offline@archival.core</span>
                     </div>
                 </div>
-                <button onclick="handleSignOut()" class="text-slate-600 hover:text-red-400 transition-colors p-1"><i class="ph ph-sign-out text-lg"></i></button>
+                <button onclick="handleSignOut()" class="text-slate-600 hover:text-red-400 transition-colors p-1" title="Sever Connection"><i class="ph ph-sign-out text-lg"></i></button>
             </div>
 
             <div id="sidebar-content" class="flex-1 overflow-y-auto px-4 py-6 space-y-1.5 custom-scroll"></div>
@@ -238,8 +238,8 @@
             </div>
 
             <div class="px-8 py-4 text-[8px] text-slate-600 flex items-center justify-between tracking-[0.2em] uppercase font-bold">
-                <span id="db-status" class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-slate-800" id="status-dot"></div> OFFLINE
+                <span class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-slate-800" id="status-dot"></div> <span id="db-status-text">OFFLINE</span>
                 </span>
                 <i class="ph ph-shield-check text-base hover:text-slate-300 cursor-pointer"></i>
             </div>
@@ -293,7 +293,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { 
-            getAuth, signInAnonymously, onAuthStateChanged, 
+            getAuth, onAuthStateChanged, 
             signInWithEmailAndPassword, createUserWithEmailAndPassword, 
             signOut, GoogleAuthProvider, signInWithPopup, signInWithCustomToken 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -317,6 +317,7 @@
         let quill = null, folders = [], documents = [], currentFolderId = null, currentDocumentId = null;
         let unsubDocs = null, unsubFolders = null;
         let authMode = 'login';
+        let isInitialLoad = true;
 
         // Initialization
         async function initSystems() {
@@ -327,38 +328,45 @@
             auth = getAuth(app);
             db = getFirestore(app);
 
-            // MANDATORY RULE 3: Auth BEFORE Queries
-            try {
-                if (initialToken) {
-                    try {
-                        await signInWithCustomToken(auth, initialToken);
-                    } catch (tokenErr) {
-                        // Fallback if token is mismatched
-                        if (!auth.currentUser) await signInAnonymously(auth);
-                    }
-                } else if (!auth.currentUser) {
-                    await signInAnonymously(auth);
+            // MANDATORY RULE 3: Strict Authentication, No Anonymous Fallback
+            if (initialToken) {
+                try {
+                    await signInWithCustomToken(auth, initialToken);
+                } catch (tokenErr) {
+                    console.warn("External platform token verification failed or missing.");
                 }
-            } catch (err) {
-                console.error("Auth System Error:", err);
             }
 
             onAuthStateChanged(auth, (user) => {
                 currentUser = user;
                 updateAuthUI(user);
                 
+                const statusDot = document.getElementById('status-dot');
+                const statusText = document.getElementById('db-status-text');
+                const enterBtnText = document.getElementById('enter-btn-text');
+
                 if (user) {
+                    isInitialLoad = true;
                     setupRealtimeSync();
-                    document.getElementById('status-dot').style.backgroundColor = '#94a3b8';
-                    document.getElementById('db-status').innerHTML = 'SYSTEM ONLINE';
+                    if (statusDot) statusDot.style.backgroundColor = '#94a3b8';
+                    if (statusText) statusText.innerText = 'SYSTEM ONLINE';
+                    if (enterBtnText) enterBtnText.innerHTML = 'Enter Workspace <i class="ph ph-arrow-right"></i>';
                 } else {
-                    document.getElementById('status-dot').style.backgroundColor = '#1e293b';
-                    document.getElementById('db-status').innerHTML = 'SYSTEM OFFLINE';
+                    if (statusDot) statusDot.style.backgroundColor = '#1e293b';
+                    if (statusText) statusText.innerText = 'SYSTEM OFFLINE';
+                    if (enterBtnText) enterBtnText.innerHTML = 'Sign In to Enter <i class="ph ph-lock-key"></i>';
+                    
+                    // Securely wipe local memory and listeners upon log out
                     if (unsubDocs) unsubDocs();
                     if (unsubFolders) unsubFolders();
                     documents = [];
                     folders = [];
-                    renderSidebar();
+                    currentDocumentId = null;
+                    currentFolderId = null;
+                    if (quill) quill.root.innerHTML = '';
+                    document.getElementById('doc-title').value = '';
+                    window.renderSidebar();
+                    window.exitWorkspace(); // Force exit
                 }
             });
         }
@@ -369,11 +377,11 @@
             const emailEl = document.getElementById('user-email');
             const avatarEl = document.getElementById('user-avatar');
 
-            if (user && !user.isAnonymous) {
+            if (user) {
                 btn.innerText = "LINKED";
                 btn.classList.add('border-slate-400', 'text-slate-300');
-                nameEl.innerText = user.displayName || user.email.split('@')[0];
-                emailEl.innerText = user.email;
+                nameEl.innerText = user.displayName || user.email?.split('@')[0] || "Authenticated User";
+                emailEl.innerText = user.email || "Platform Authenticated";
                 if (user.photoURL) {
                     avatarEl.innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover">`;
                 } else {
@@ -383,7 +391,7 @@
                 btn.innerText = "SIGN IN";
                 btn.classList.remove('border-slate-400', 'text-slate-300');
                 nameEl.innerText = "Guest User";
-                emailEl.innerText = "anonymous@archival.core";
+                emailEl.innerText = "offline@archival.core";
                 avatarEl.innerHTML = `<i class="ph ph-user"></i>`;
             }
         }
@@ -406,28 +414,28 @@
             document.getElementById('auth-title').innerText = authMode === 'login' ? 'Identity Verification' : 'New Archival Link';
             document.getElementById('auth-main-btn').innerText = authMode === 'login' ? 'Initialize Session' : 'Create Record';
             document.getElementById('auth-toggle-text').innerHTML = authMode === 'login' 
-                ? `No record found? <button onclick="toggleAuthMode()" class="text-white hover:underline">Establish Account</button>`
-                : `Existing Archive? <button onclick="toggleAuthMode()" class="text-white hover:underline">Sign In</button>`;
+                ? `No record found? <button onclick="window.toggleAuthMode()" class="text-white hover:underline">Establish Account</button>`
+                : `Existing Archive? <button onclick="window.toggleAuthMode()" class="text-white hover:underline">Sign In</button>`;
         };
 
         window.handleAuth = async () => {
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
 
-            if (!email || !password) return showToast("Credentials Missing");
+            if (!email || !password) return window.showToast("Credentials Missing");
 
             try {
                 if (authMode === 'login') {
                     await signInWithEmailAndPassword(auth, email, password);
-                    showToast("Access Granted");
+                    window.showToast("Access Granted");
                 } else {
                     await createUserWithEmailAndPassword(auth, email, password);
-                    showToast("Record Established");
+                    window.showToast("Record Established");
                 }
-                closeAuthModal();
+                window.closeAuthModal();
             } catch (err) {
                 const msg = err.code ? err.code.split('/')[1].replace(/-/g, ' ') : "System Error";
-                showToast(msg.toUpperCase());
+                window.showToast(msg.toUpperCase());
             }
         };
 
@@ -435,49 +443,60 @@
             const provider = new GoogleAuthProvider();
             try {
                 await signInWithPopup(auth, provider);
-                showToast("Google Link Active");
-                closeAuthModal();
+                window.showToast("Google Link Active");
+                window.closeAuthModal();
             } catch (err) {
-                showToast("Link Refused");
+                window.showToast("Link Refused");
             }
         };
 
         window.handleSignOut = async () => {
             try {
                 await signOut(auth);
-                showToast("Identity Severed");
-                createNewDocument('root');
+                window.showToast("Identity Severed");
             } catch (err) {
-                showToast("Logout Failed");
+                window.showToast("Logout Failed");
             }
         };
 
-        // SYNC LOGIC
+        // SYNC LOGIC (Strict Firestore Only)
         function setupRealtimeSync() {
             if (!currentUser || !db) return;
 
             if (unsubDocs) unsubDocs();
             if (unsubFolders) unsubFolders();
 
-            // MANDATORY RULE 1: /artifacts/{appId}/users/{userId}/{collectionName}
             const docCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs');
             unsubDocs = onSnapshot(docCol, (snapshot) => {
                 documents = [];
                 snapshot.forEach(d => documents.push(d.data()));
-                renderSidebar();
+                window.renderSidebar();
+
+                // Auto load the first document on initial login sync
+                if (isInitialLoad && !currentDocumentId) {
+                    if (documents.length > 0) {
+                        window.openDocument(documents[0].id);
+                    } else {
+                        window.createNewDocument('root');
+                    }
+                    isInitialLoad = false;
+                }
             }, (err) => console.error("Snapshot error:", err));
 
             const foldCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders');
             unsubFolders = onSnapshot(foldCol, (snapshot) => {
                 folders = [];
                 snapshot.forEach(f => folders.push(f.data()));
-                renderSidebar();
+                window.renderSidebar();
             }, (err) => console.error("Snapshot error:", err));
         }
 
         // Action: Preserve
         window.saveDocument = async () => {
-            if (!currentUser) return showToast("Authenticating...");
+            if (!currentUser) {
+                window.openAuthModal();
+                return window.showToast("Authentication Required to Save");
+            }
             
             const title = document.getElementById('doc-title').value.trim() || 'Archival Record';
             const content = quill ? quill.root.innerHTML : "";
@@ -495,27 +514,34 @@
                 const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id);
                 await setDoc(docRef, data);
                 currentDocumentId = id;
-                showToast("Record Preserved");
+                window.showToast("Record Preserved");
             } catch (err) { 
-                showToast("Preservation Failed");
+                window.showToast("Preservation Failed");
                 console.error(err);
             }
         };
 
         window.submitNewFolder = async () => {
-            if (!currentUser) return;
+            if (!currentUser) return window.showToast("Authentication Required");
             const name = document.getElementById('folder-name-input').value.trim();
             if(!name) return;
             const f = { id: Math.random().toString(36).substr(2, 10), name, created_at: new Date().toISOString() };
             try {
                 const foldRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', f.id);
                 await setDoc(foldRef, f);
-                closeFolderModal();
-            } catch (e) { showToast("Sector Failed"); }
+                window.closeFolderModal();
+            } catch (e) { window.showToast("Sector Failed"); }
         };
 
         // UI HELPERS
         window.enterWorkspace = () => {
+            // Block entry if not logged in
+            if (!currentUser) {
+                window.showToast("Sign in to access archive");
+                window.openAuthModal();
+                return;
+            }
+
             const h = document.getElementById('homepage-overlay'), w = document.getElementById('workspace-overlay');
             h.style.opacity = '0'; h.style.transform = 'scale(1.05)';
             w.classList.remove('hidden'); 
@@ -523,8 +549,7 @@
                 h.classList.add('hidden');
                 w.classList.remove('opacity-0', 'pointer-events-none');
                 w.classList.add('opacity-100', 'pointer-events-auto');
-                renderSidebar();
-                if (documents.length === 0 && !currentDocumentId) createNewDocument('root');
+                window.renderSidebar();
             }, 500);
         };
 
@@ -554,8 +579,8 @@
             document.getElementById('doc-title').value = '';
             if (quill) quill.root.innerHTML = '';
             document.getElementById('delete-btn').classList.add('hidden');
-            renderSidebar();
-            if(window.innerWidth < 1024) toggleSidebar();
+            window.renderSidebar();
+            if(window.innerWidth < 1024) window.toggleSidebar();
             document.getElementById('command-menu').classList.remove('active');
             document.getElementById('command-caret').classList.remove('rotate-180');
         };
@@ -567,8 +592,8 @@
             document.getElementById('doc-title').value = d.title;
             if (quill) quill.root.innerHTML = d.content;
             document.getElementById('delete-btn').classList.remove('hidden');
-            renderSidebar();
-            if(window.innerWidth < 1024) toggleSidebar();
+            window.renderSidebar();
+            if(window.innerWidth < 1024) window.toggleSidebar();
         };
 
         window.deleteCurrentDocument = async () => {
@@ -576,9 +601,9 @@
             const id = currentDocumentId;
             try {
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
-                createNewDocument(currentFolderId);
-                showToast("Record Purged");
-            } catch (e) { showToast("Purge Failed"); }
+                window.createNewDocument(currentFolderId);
+                window.showToast("Record Purged");
+            } catch (e) { window.showToast("Purge Failed"); }
         };
 
         window.deleteDocumentById = async (e, id) => {
@@ -586,9 +611,9 @@
             if (!currentUser) return;
             try { 
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id)); 
-                if(id === currentDocumentId) createNewDocument(currentFolderId);
-                showToast("Purged");
-            } catch (e) { showToast("Purge Failed"); }
+                if(id === currentDocumentId) window.createNewDocument(currentFolderId);
+                window.showToast("Purged");
+            } catch (e) { window.showToast("Purge Failed"); }
         };
 
         window.deleteFolder = async (e, id) => {
@@ -597,8 +622,8 @@
             try { 
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', id)); 
                 if(currentFolderId === id) currentFolderId = null;
-                renderSidebar();
-            } catch (e) { showToast("Purge Failed"); }
+                window.renderSidebar();
+            } catch (e) { window.showToast("Purge Failed"); }
         };
 
         window.openFolderModal = () => {
@@ -613,8 +638,8 @@
             document.getElementById('folder-modal-content').classList.add('scale-95');
         };
 
-        window.openFolder = (id) => { currentFolderId = id; renderSidebar(); };
-        window.goBackToFolders = () => { currentFolderId = null; renderSidebar(); };
+        window.openFolder = (id) => { currentFolderId = id; window.renderSidebar(); };
+        window.goBackToFolders = () => { currentFolderId = null; window.renderSidebar(); };
 
         window.toggleFullscreen = () => {
             const icons = [document.getElementById('fullscreen-icon'), document.getElementById('fullscreen-icon-home')];
@@ -627,52 +652,53 @@
             }
         };
 
-        function renderSidebar() {
+        window.renderSidebar = () => {
             const cont = document.getElementById('sidebar-content');
             if(!cont) return;
             let html = '';
             const bread = document.getElementById('current-loc-label');
             if (currentFolderId === null) {
                 if (bread) bread.innerText = 'CORE ARCHIVE';
-                html += `<div onclick="openFolder('root')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all ${currentFolderId === 'root' ? 'active' : 'hover:bg-white/[0.04]'}">
+                html += `<div onclick="window.openFolder('root')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all ${currentFolderId === 'root' ? 'active' : 'hover:bg-white/[0.04]'}">
                     <div class="flex items-center gap-4"><i class="ph ph-archive text-slate-500 text-lg"></i><span class="text-[10px] font-bold uppercase text-slate-300">Root Records</span></div>
                     <span class="text-[9px] text-slate-600 font-black opacity-60">${documents.filter(d => d.folderId === 'root').length}</span>
                 </div>`;
                 folders.forEach(f => {
-                    html += `<div onclick="openFolder('${f.id}')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all hover:bg-white/[0.04]">
+                    html += `<div onclick="window.openFolder('${f.id}')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all hover:bg-white/[0.04]">
                         <div class="flex items-center gap-4 min-w-0"><i class="ph ph-folder text-slate-600 text-lg flex-shrink-0"></i><span class="text-[10px] font-bold uppercase text-slate-200 truncate">${f.name}</span></div>
                         <div class="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all">
-                            <i class="ph ph-trash text-slate-700 hover:text-red-900 p-1" onclick="deleteFolder(event, '${f.id}')"></i>
+                            <i class="ph ph-trash text-slate-700 hover:text-red-900 p-1" onclick="window.deleteFolder(event, '${f.id}')"></i>
                         </div>
                     </div>`;
                 });
             } else {
                 const f = folders.find(fold => fold.id === currentFolderId);
                 if (bread) bread.innerText = currentFolderId === 'root' ? 'ROOT SECTOR' : f?.name.toUpperCase();
-                html += `<button onclick="goBackToFolders()" class="text-slate-500 hover:text-white text-[9px] font-black uppercase flex items-center gap-2 mb-8 transition-all px-2"><i class="ph ph-arrow-left"></i> Systems Return</button>`;
+                html += `<button onclick="window.goBackToFolders()" class="text-slate-500 hover:text-white text-[9px] font-black uppercase flex items-center gap-2 mb-8 transition-all px-2"><i class="ph ph-arrow-left"></i> Systems Return</button>`;
                 const filtered = documents.filter(d => d.folderId === currentFolderId);
                 if (filtered.length === 0) {
                    html += `<p class="px-2 text-[8px] text-slate-600 uppercase tracking-widest italic">No records initialized.</p>`;
                 }
                 filtered.forEach(d => {
                     const active = d.id === currentDocumentId;
-                    html += `<div onclick="openDocument('${d.id}')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all ${active ? 'active' : 'hover:bg-white/[0.03]'}">
+                    html += `<div onclick="window.openDocument('${d.id}')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all ${active ? 'active' : 'hover:bg-white/[0.03]'}">
                         <span class="text-[10px] font-bold uppercase text-slate-300 truncate mr-2">${d.title}</span>
-                        <i class="ph ph-trash text-slate-800 hover:text-red-900 opacity-0 group-hover:opacity-100 transition-all p-1" onclick="deleteDocumentById(event, '${d.id}')"></i>
+                        <i class="ph ph-trash text-slate-800 hover:text-red-900 opacity-0 group-hover:opacity-100 transition-all p-1" onclick="window.deleteDocumentById(event, '${d.id}')"></i>
                     </div>`;
                 });
             }
             cont.innerHTML = html;
-        }
+        };
 
-        function showToast(m) {
+        window.showToast = (m) => {
             const cont = document.getElementById('toast-container');
+            if (!cont) return;
             const t = document.createElement('div');
             t.className = `glass-panel border-white/10 p-4 md:p-5 rounded-2xl flex items-center gap-4 shadow-3xl pointer-events-auto transition-all duration-500 opacity-100`;
             t.innerHTML = `<i class="ph ph-circle-wavy-check text-slate-400"></i><p class="text-[9px] font-bold uppercase text-slate-200 tracking-widest">${m}</p>`;
             cont.appendChild(t);
             setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 600); }, 3000);
-        }
+        };
 
         function initStars() {
             const cont = document.getElementById('canvas-container');
