@@ -5,205 +5,207 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Eternal | Infinite Archives</title>
     
-    <!-- PWA / Installability Meta Tags -->
+    <!-- PWA Meta -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="The Eternal">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#020203">
     
-    <link rel="manifest" href='data:application/manifest+json,{"name":"The Eternal","short_name":"Eternal","start_url":".","display":"standalone","background_color":"#000000","theme_color":"#000000","icons":[{"src":"https://unpkg.com/@phosphor-icons/core@2.0.8/assets/duotone/infinity-duotone.svg","sizes":"192x192","type":"image/svg+xml"}]}'>
-
-    <!-- Tailwind CSS -->
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@200;300;400;500;600&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     
-    <!-- Quill.js -->
+    <!-- Libraries -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
-    <!-- KaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/quill-blot-formatter@1.0.5/dist/quill-blot-formatter.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <style>
+        :root {
+            --space-black: #020204;
+            --archival-gold: rgba(212, 175, 55, 0.4);
+            --slate-border: rgba(255, 255, 255, 0.08);
+        }
+
         body { 
             margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; 
-            background-color: #000; color: #f8fafc; font-family: 'Inter', sans-serif; 
+            background-color: var(--space-black); color: #f1f5f9; font-family: 'Inter', sans-serif; 
             display: flex; flex-direction: column; 
         }
         @media (min-width: 768px) { body { flex-direction: row; } }
         
-        .glass-panel {
-            background: rgba(8, 8, 10, 0.92);
-            backdrop-filter: blur(30px) saturate(200%);
-            -webkit-backdrop-filter: blur(30px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.9);
+        .vignette {
+            position: fixed; inset: 0; pointer-events: none;
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.6) 100%);
+            z-index: 5;
         }
 
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+        .glass-panel {
+            background: rgba(10, 10, 12, 0.82);
+            backdrop-filter: blur(40px) saturate(160%);
+            -webkit-backdrop-filter: blur(40px) saturate(160%);
+            border: 0.5px solid var(--slate-border);
+            box-shadow: 0 10px 50px -10px rgba(0, 0, 0, 0.95);
+        }
 
+        .custom-scroll::-webkit-scrollbar { width: 3px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+        /* Font Engine Mapping */
         .ql-font-inter { font-family: 'Inter', sans-serif; }
         .ql-font-cinzel { font-family: 'Cinzel', serif; }
         .ql-font-garamond { font-family: 'EB Garamond', serif; }
         .ql-font-playfair { font-family: 'Playfair Display', serif; }
         .ql-font-jetbrains { font-family: 'JetBrains Mono', monospace; }
-        .ql-font-montserrat { font-family: 'Montserrat', sans-serif; }
-        .ql-font-lora { font-family: 'Lora', serif; }
 
+        /* Fix Quill Font Picker Labels */
         .ql-snow .ql-picker.ql-font .ql-picker-label::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item::before { content: 'Standard'; font-family: 'Inter', sans-serif; }
+        .ql-snow .ql-picker.ql-font .ql-picker-item::before { content: 'Standard'; }
+        
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="inter"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="inter"]::before { content: 'Standard'; }
+
         .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="cinzel"]::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="cinzel"]::before { content: 'Eternal'; font-family: 'Cinzel', serif; }
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="cinzel"]::before { content: 'Eternal'; }
+
         .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="garamond"]::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="garamond"]::before { content: 'Scholarly'; font-family: 'EB Garamond', serif; }
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="garamond"]::before { content: 'Scholarly'; }
+
         .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="playfair"]::before { content: 'Imperial'; font-family: 'Playfair Display', serif; }
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="playfair"]::before { content: 'Imperial'; }
+
         .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="jetbrains"]::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="jetbrains"]::before { content: 'Technical'; font-family: 'JetBrains Mono', monospace; }
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="jetbrains"]::before { content: 'Technical'; }
 
-        .ql-toolbar.ql-snow { border: none; background: rgba(15, 15, 20, 0.85); border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
-        .ql-container.ql-snow { border: none !important; color: #f8fafc; font-size: 1.05rem; }
-        .ql-editor { padding: 1.5rem; line-height: 1.9; font-weight: 300; }
-        @media (min-width: 768px) { .ql-editor { padding: 4rem 6rem; } }
+        /* Toolbar Styling */
+        .ql-toolbar.ql-snow { border: none; background: rgba(15, 15, 18, 0.9); border-bottom: 0.5px solid var(--slate-border); padding: 10px; display: flex; gap: 4px; }
+        .ql-container.ql-snow { border: none !important; color: #f8fafc; font-size: 1rem; }
+        .ql-editor { padding: 2rem; line-height: 2; font-weight: 300; letter-spacing: 0.015em; }
+        @media (min-width: 768px) { .ql-editor { padding: 4rem 8rem; } }
 
-        .ql-snow .ql-stroke { stroke: #f1f5f9; stroke-width: 1.5px; }
-        .ql-snow .ql-fill { fill: #f1f5f9; }
-        .ql-snow .ql-picker { color: #f1f5f9; font-weight: 600; }
-        .ql-snow .ql-picker-options { background-color: #0c0c0e !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 12px; padding: 10px !important; }
+        .ql-snow .ql-stroke { stroke: #94a3b8; stroke-width: 1px; }
+        .ql-snow .ql-picker { color: #94a3b8; font-size: 11px; }
+        .ql-snow .ql-picker-options { background-color: #0c0c0e !important; border: 0.5px solid var(--slate-border) !important; border-radius: 8px; }
 
-        .logo-glow { text-shadow: 0 0 20px rgba(255, 255, 255, 0.4); letter-spacing: 0.25em; }
+        .logo-glow { text-shadow: 0 0 30px rgba(255, 255, 255, 0.4); letter-spacing: 0.3em; }
         
         .premium-btn {
-            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+            border: 0.5px solid var(--slate-border);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .premium-btn:hover {
-            background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 100%);
-            border-color: rgba(255, 255, 255, 0.4);
-            transform: translateY(-2px);
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.04) 100%);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(255,255,255,0.05);
         }
 
-        #homepage-overlay { transition: opacity 0.5s ease, transform 0.5s ease; }
-        .workspace-transition { transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .sidebar-item { border-left: 1px solid transparent; transition: all 0.3s ease; }
+        .sidebar-item.active { border-left-color: #64748b; background: rgba(255, 255, 255, 0.03); }
 
-        #command-menu { transform: translateY(10px); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        #command-menu.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
-        
-        .sidebar-item { border-left: 2px solid transparent; transition: all 0.2s ease; }
-        .sidebar-item.active { border-left-color: #60a5fa; background: rgba(96, 165, 250, 0.15); }
-
-        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); background-size: 200% 100%; animation: shimmer 3s infinite; }
+        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent); background-size: 200% 100%; animation: shimmer 4s infinite; }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
     </style>
 </head>
-<body class="antialiased relative bg-black">
+<body class="antialiased relative">
 
-    <div id="canvas-container" class="absolute inset-0 z-0 pointer-events-none"></div>
+    <div class="vignette"></div>
+    <div id="canvas-container" class="fixed inset-0 z-0 pointer-events-none"></div>
 
     <!-- HOME SCREEN -->
     <div id="homepage-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/10 backdrop-blur-[1px]">
+        <div class="absolute top-10 right-10 flex items-center gap-6">
+            <button onclick="toggleFullscreen()" class="text-white/30 hover:text-white transition-all">
+                <i id="fullscreen-icon-home" class="ph ph-corners-out text-xl"></i>
+            </button>
+        </div>
+
         <div class="flex flex-col items-center text-center px-6">
-            <i class="ph ph-infinity text-6xl text-white mb-8 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]"></i>
-            <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold text-white mb-6 logo-glow uppercase" style="font-family: 'Cinzel', serif;">The Eternal</h1>
+            <i class="ph ph-infinity text-6xl text-white mb-8 drop-shadow-[0_0_25px_rgba(255,255,255,0.5)]"></i>
+            <h1 class="text-5xl sm:text-6xl md:text-7xl font-bold text-white mb-6 logo-glow uppercase" style="font-family: 'Cinzel', serif;">The Eternal</h1>
             <p class="text-white font-semibold tracking-[0.6em] mb-12 uppercase text-[10px] md:text-xs opacity-90">Infinite Archival Core</p>
             
             <button onclick="enterWorkspace()" class="premium-btn group py-6 px-16 text-white rounded-full font-bold transition-all backdrop-blur-md uppercase tracking-[0.4em] text-[11px] shadow-2xl relative overflow-hidden">
-                <span class="relative z-10 flex items-center gap-3">Enter Workspace <i class="ph ph-arrow-right"></i></span>
+                <span class="relative z-10 flex items-center gap-4">Enter Workspace <i class="ph ph-arrow-right"></i></span>
                 <div class="shimmer absolute inset-0"></div>
             </button>
         </div>
     </div>
 
     <!-- WORKSPACE SCREEN -->
-    <div id="workspace-overlay" class="workspace-transition absolute inset-0 z-10 flex w-full h-full p-2 sm:p-4 gap-4 bg-black/20 opacity-0 pointer-events-none transform scale-95 hidden">
+    <div id="workspace-overlay" class="workspace-transition absolute inset-0 z-10 flex w-full h-full p-3 sm:p-5 gap-5 bg-transparent opacity-0 pointer-events-none transform scale-100 hidden">
         
-        <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/80 backdrop-blur-md z-30 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden"></div>
+        <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden"></div>
 
-        <aside id="sidebar" class="glass-panel fixed inset-y-2 left-2 w-[calc(100%-1rem)] sm:w-80 md:w-72 md:relative md:inset-0 z-40 flex flex-col rounded-[2.5rem] overflow-hidden transition-transform duration-300 -translate-x-[110%] md:translate-x-0">
-            <div class="p-6 border-b border-white/10 flex items-center justify-between">
-                <div class="flex flex-col gap-1 cursor-pointer" onclick="exitWorkspace()">
-                    <div class="flex items-center gap-3">
-                        <i class="ph ph-infinity text-2xl text-white"></i>
-                        <h1 class="text-xl font-bold tracking-[0.1em] text-white" style="font-family: 'Cinzel', serif;">ETERNAL</h1>
-                    </div>
-                    <span class="text-[10px] tracking-[0.2em] text-white uppercase font-bold opacity-90">Archival Sector</span>
+        <aside id="sidebar" class="glass-panel fixed inset-y-3 left-3 w-[calc(100%-1.5rem)] sm:w-80 md:w-72 md:relative md:inset-0 z-40 flex flex-col rounded-[2rem] overflow-hidden transition-transform duration-500 -translate-x-[110%] md:translate-x-0">
+            <div class="p-8 border-b border-white/5 flex flex-col gap-2">
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="exitWorkspace()">
+                    <i class="ph ph-infinity text-xl text-slate-400 group-hover:text-white transition-colors"></i>
+                    <h1 class="text-lg font-bold tracking-[0.2em] text-white/90" style="font-family: 'Cinzel', serif;">ETERNAL</h1>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-white hover:text-blue-400"><i class="ph ph-x-circle text-4xl"></i></button>
+                <span class="text-[8px] tracking-[0.3em] text-slate-500 uppercase font-bold">Terminal Sector 001</span>
             </div>
 
-            <div id="sidebar-content" class="flex-1 overflow-y-auto px-4 py-6 space-y-2 custom-scroll"></div>
+            <div id="sidebar-content" class="flex-1 overflow-y-auto px-5 py-8 space-y-1.5 custom-scroll"></div>
 
-            <div class="p-4 border-t border-white/10 relative bg-black/60">
-                <div id="command-menu" class="absolute left-4 right-4 bottom-24 glass-panel rounded-2xl overflow-hidden border border-white/20 z-50">
-                    <button onclick="createNewDocument('root')" class="command-item w-full p-6 flex items-center gap-4 text-left border-b border-white/10 hover:bg-white/10 transition-all">
-                        <i class="ph ph-plus-circle text-blue-400 text-2xl"></i>
-                        <div class="flex flex-col">
-                            <span class="text-[11px] font-bold uppercase tracking-widest text-white">Initialize Record</span>
-                            <span class="text-[10px] text-white uppercase font-bold opacity-70">New archival entry</span>
-                        </div>
+            <div class="p-6 border-t border-white/5 bg-black/20">
+                <div id="command-menu" class="absolute left-4 right-4 bottom-24 glass-panel rounded-2xl overflow-hidden z-50">
+                    <button onclick="createNewDocument('root')" class="w-full p-5 flex items-center gap-4 text-left hover:bg-white/[0.03] transition-all">
+                        <i class="ph ph-plus-circle text-slate-400 text-lg"></i>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-white/70">New Record</span>
                     </button>
-                    <button onclick="openFolderModal()" class="command-item w-full p-6 flex items-center gap-4 text-left hover:bg-white/10 transition-all">
-                        <i class="ph ph-folder-plus text-blue-400 text-2xl"></i>
-                        <div class="flex flex-col">
-                            <span class="text-[11px] font-bold uppercase tracking-widest text-white">Establish Sector</span>
-                            <span class="text-[10px] text-white uppercase font-bold opacity-70">New directory</span>
-                        </div>
+                    <button onclick="openFolderModal()" class="w-full p-5 flex items-center gap-4 text-left hover:bg-white/[0.03] transition-all">
+                        <i class="ph ph-folder-plus text-slate-400 text-lg"></i>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-white/70">Establish Sector</span>
                     </button>
                 </div>
-                <button id="command-toggle" onclick="toggleCommandMenu()" class="premium-btn w-full py-4 px-4 text-white rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] transition-all flex items-center justify-between group">
-                    <span class="flex items-center gap-3"><i class="ph ph-command text-blue-400 text-lg"></i> Initialize</span>
-                    <i class="ph ph-caret-up text-white group-hover:text-blue-300 transition-transform duration-300" id="command-caret"></i>
+                <button id="command-toggle" onclick="toggleCommandMenu()" class="premium-btn w-full py-4 px-5 text-white/60 hover:text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.3em] transition-all flex items-center justify-between group">
+                    <span>Initialize</span>
+                    <i class="ph ph-caret-up group-hover:translate-y-[-2px] transition-transform" id="command-caret"></i>
                 </button>
             </div>
 
-            <div class="p-6 border-t border-white/10 text-[10px] text-white flex items-center justify-between tracking-[0.2em] uppercase font-bold bg-black/80">
+            <div class="px-8 py-5 text-[8px] text-slate-600 flex items-center justify-between tracking-[0.2em] uppercase font-bold">
                 <span id="db-status" class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]" id="status-dot"></div> OFFLINE
+                    <div class="w-1.5 h-1.5 rounded-full bg-slate-800" id="status-dot"></div> OFFLINE
                 </span>
-                <i class="ph ph-gear text-xl hover:text-blue-400 cursor-pointer transition-colors"></i>
+                <i class="ph ph-shield-check text-base hover:text-slate-300 cursor-pointer"></i>
             </div>
         </aside>
 
-        <main class="flex-1 glass-panel rounded-[2.5rem] flex flex-col overflow-hidden h-full relative z-10 shadow-3xl">
-            <header class="px-6 py-4 md:px-12 md:py-8 border-b border-white/10 flex items-center justify-between bg-white/[0.03]">
-                <div class="flex items-center gap-5 flex-1 min-w-0">
-                    <button onclick="toggleSidebar()" class="md:hidden text-white"><i class="ph ph-list text-4xl"></i></button>
-                    <div class="flex flex-col gap-1 w-full max-w-2xl">
-                        <input type="text" id="doc-title" placeholder="Designation..." class="bg-transparent text-2xl md:text-4xl font-bold text-white outline-none w-full focus:text-blue-200 placeholder:opacity-50" value="Untitled Record" style="font-family: 'Cinzel', serif;">
-                        <div class="text-[10px] uppercase tracking-[0.3em] text-white font-bold flex items-center gap-2 opacity-90">
-                            Archive <i class="ph ph-caret-right text-[8px]"></i> <span id="current-loc-label" class="text-blue-300">Root Sector</span>
+        <main class="flex-1 glass-panel rounded-[2rem] flex flex-col overflow-hidden h-full relative z-10 shadow-3xl">
+            <header class="px-8 py-5 md:px-12 md:py-8 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+                <div class="flex items-center gap-6 flex-1 min-w-0">
+                    <button onclick="toggleSidebar()" class="md:hidden text-slate-400"><i class="ph ph-list text-3xl"></i></button>
+                    <div class="flex flex-col gap-1.5 w-full max-w-2xl">
+                        <input type="text" id="doc-title" placeholder="Entry Designation..." class="bg-transparent text-xl md:text-2xl font-light text-white outline-none w-full focus:text-slate-200 placeholder:opacity-30" value="Archival Record" style="font-family: 'Cinzel', serif;">
+                        <div class="text-[8px] uppercase tracking-[0.4em] text-slate-500 font-bold flex items-center gap-2">
+                            SYSTEM <i class="ph ph-caret-right text-[6px]"></i> <span id="current-loc-label" class="text-slate-400">CORE ARCHIVE</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="exitWorkspace()" class="p-3 text-white hover:text-blue-400 transition-all rounded-xl hover:bg-white/10" title="Back to Portal">
-                        <i class="ph ph-house text-2xl"></i>
-                    </button>
-                    <div class="w-px h-8 bg-white/10 mx-2"></div>
-                    <button onclick="toggleFullscreen()" class="p-3 text-white hover:text-white transition-all rounded-xl hover:bg-white/10" title="Immersive View"><i id="fullscreen-icon" class="ph ph-corners-out text-2xl"></i></button>
-                    <button onclick="toggleCurrentDocPin()" id="pin-btn" class="hidden p-3 text-white hover:text-yellow-400 transition-all rounded-xl hover:bg-white/10" title="Pin Record"><i class="ph ph-push-pin text-2xl pin-icon" id="header-pin-icon"></i></button>
-                    <button onclick="deleteCurrentDocument()" id="delete-btn" class="hidden p-3 text-red-500/80 hover:text-red-500 transition-all rounded-xl hover:bg-red-500/10" title="Purge Record"><i class="ph ph-trash-simple text-2xl"></i></button>
-                    <button onclick="saveDocument()" class="ml-2 py-4 px-10 bg-blue-600/30 hover:bg-blue-600/50 border border-blue-500/40 text-white rounded-2xl text-[11px] font-bold uppercase tracking-[0.3em] transition-all flex items-center gap-3 shadow-[0_0_20px_rgba(37,99,235,0.2)]">
-                        <i class="ph ph-floppy-disk text-xl"></i> Preserve
+                <div class="flex items-center gap-2">
+                    <button onclick="exitWorkspace()" class="p-3 text-slate-500 hover:text-white transition-all rounded-xl" title="Exit"><i class="ph ph-house-line text-xl"></i></button>
+                    <button onclick="toggleFullscreen()" class="p-3 text-slate-500 hover:text-white transition-all rounded-xl" title="Immersive"><i id="fullscreen-icon" class="ph ph-corners-out text-xl"></i></button>
+                    <button onclick="deleteCurrentDocument()" id="delete-btn" class="hidden p-3 text-red-900/40 hover:text-red-500 transition-all rounded-xl"><i class="ph ph-trash-simple text-xl"></i></button>
+                    <button onclick="saveDocument()" class="ml-4 py-3.5 px-10 premium-btn text-white/80 hover:text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.3em] transition-all flex items-center gap-3">
+                        <i class="ph ph-fingerprint text-lg"></i> Preserve
                     </button>
                 </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto bg-black/10 custom-scroll">
-                <div class="max-w-6xl mx-auto min-h-full py-12 px-6 md:px-0">
+            <div class="flex-1 overflow-y-auto custom-scroll">
+                <div class="max-w-4xl mx-auto min-h-full py-16 px-6 md:px-0">
                     <div id="editor"></div>
                 </div>
             </div>
@@ -211,138 +213,147 @@
     </div>
 
     <!-- Modals -->
-    <div id="folder-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-400">
-        <div class="glass-panel p-12 rounded-[3rem] max-w-lg w-full border border-white/20 scale-90 transition-all shadow-3xl" id="folder-modal-content">
-            <h2 class="text-3xl font-bold tracking-[0.1em] mb-4 uppercase text-white" style="font-family: 'Cinzel', serif;">New Archival Sector</h2>
-            <p class="text-[11px] text-white mb-10 tracking-[0.2em] uppercase font-bold opacity-80">Initialize containment unit for archival categorization.</p>
-            <input type="text" id="folder-name-input" placeholder="Designation Name..." class="w-full bg-white/10 border border-white/20 rounded-2xl px-8 py-5 text-white outline-none text-base mb-12 focus:border-blue-500 focus:bg-white/[0.15] transition-all">
-            <div class="flex gap-6">
-                <button onclick="closeFolderModal()" class="flex-1 py-5 text-white text-[11px] font-bold uppercase tracking-[0.3em] hover:text-red-400 transition-colors">Cancel</button>
-                <button onclick="submitNewFolder()" class="flex-1 py-5 bg-white/10 border border-white/30 text-white rounded-2xl font-bold text-[11px] uppercase tracking-[0.3em] hover:bg-white/20 transition-all">Establish Sector</button>
+    <div id="folder-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-500">
+        <div class="glass-panel p-12 rounded-[3rem] max-w-md w-full border-white/10 scale-95 transition-all shadow-3xl" id="folder-modal-content">
+            <h2 class="text-2xl font-light tracking-[0.2em] mb-4 uppercase text-white/90" style="font-family: 'Cinzel', serif;">New Archival Sector</h2>
+            <p class="text-[9px] text-slate-500 mb-10 tracking-[0.3em] uppercase font-bold">Initialize categorization containment.</p>
+            <input type="text" id="folder-name-input" placeholder="Sector Name..." class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white outline-none text-sm mb-12 focus:border-white/30 transition-all">
+            <div class="flex gap-4">
+                <button onclick="closeFolderModal()" class="flex-1 py-4 text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] hover:text-white transition-colors">Abort</button>
+                <button onclick="submitNewFolder()" class="flex-1 py-4 premium-btn text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.3em]">Confirm</button>
             </div>
         </div>
     </div>
 
-    <div id="toast-container" class="fixed bottom-12 right-12 z-[100] flex flex-col gap-4 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-10 right-10 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = JSON.parse(__firebase_config);
+        // Firebase Config with safety guards
+        const getFirebaseConfig = () => {
+            try {
+                return typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "" };
+            } catch (e) { return { apiKey: "" }; }
+        };
+
+        const config = getFirebaseConfig();
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'the-eternal-v1';
         const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+        let app, auth, db, currentUser = null;
+        if (config.apiKey) {
+            app = initializeApp(config);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        }
         
-        let currentUser = null;
-        let quill = null;
-        let folders = [];
-        let documents = [];
-        let currentFolderId = null;
-        let currentDocumentId = null;
+        let quill = null, folders = [], documents = [], currentFolderId = null, currentDocumentId = null;
 
+        // UI Handlers
         window.enterWorkspace = () => {
-            const home = document.getElementById('homepage-overlay');
-            const work = document.getElementById('workspace-overlay');
-            home.style.opacity = '0';
-            home.style.transform = 'scale(1.1)';
-            work.classList.remove('hidden'); 
+            const h = document.getElementById('homepage-overlay'), w = document.getElementById('workspace-overlay');
+            h.style.opacity = '0'; h.style.transform = 'scale(1.05)';
+            w.classList.remove('hidden'); 
             setTimeout(() => {
-                home.classList.add('hidden');
-                work.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
-                work.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+                h.classList.add('hidden');
+                w.classList.remove('opacity-0', 'pointer-events-none');
+                w.classList.add('opacity-100', 'pointer-events-auto');
                 renderSidebar();
                 if (documents.length === 0) createNewDocument('root');
-            }, 300);
+            }, 500);
         };
 
         window.exitWorkspace = () => {
-            const home = document.getElementById('homepage-overlay');
-            const work = document.getElementById('workspace-overlay');
-            work.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
-            home.classList.remove('hidden');
-            setTimeout(() => {
-                home.style.opacity = '1';
-                home.style.transform = 'scale(1)';
-            }, 50);
-            setTimeout(() => {
-                work.classList.add('hidden');
-            }, 400);
+            const h = document.getElementById('homepage-overlay'), w = document.getElementById('workspace-overlay');
+            w.classList.add('opacity-0', 'pointer-events-none');
+            h.classList.remove('hidden');
+            setTimeout(() => { h.style.opacity = '1'; h.style.transform = 'scale(1)'; }, 50);
+            setTimeout(() => { w.classList.add('hidden'); }, 600);
         };
 
         window.toggleSidebar = () => {
-            const s = document.getElementById('sidebar');
-            const b = document.getElementById('sidebar-backdrop');
+            const s = document.getElementById('sidebar'), b = document.getElementById('sidebar-backdrop');
             const hidden = s.classList.contains('-translate-x-[110%]');
             if(hidden) { s.classList.remove('-translate-x-[110%]'); b.classList.add('opacity-100', 'pointer-events-auto'); }
             else { s.classList.add('-translate-x-[110%]'); b.classList.remove('opacity-100', 'pointer-events-auto'); }
         };
 
         window.toggleCommandMenu = () => {
-            const m = document.getElementById('command-menu');
-            const c = document.getElementById('command-caret');
+            const m = document.getElementById('command-menu'), c = document.getElementById('command-caret');
             const act = m.classList.toggle('active');
             c.classList.toggle('rotate-180', act);
         };
 
+        // Document Logic
         window.createNewDocument = (fid = 'root') => {
             currentDocumentId = null; currentFolderId = fid;
             document.getElementById('doc-title').value = '';
-            quill.root.innerHTML = '';
+            if (quill) quill.root.innerHTML = '';
             document.getElementById('delete-btn').classList.add('hidden');
-            document.getElementById('pin-btn').classList.add('hidden');
             renderSidebar();
             if(window.innerWidth < 768) toggleSidebar();
             document.getElementById('command-menu').classList.remove('active');
         };
 
         window.saveDocument = async () => {
-            if(!currentUser) return;
-            const title = document.getElementById('doc-title').value.trim() || 'Untitled Record';
-            const content = quill.root.innerHTML;
+            const title = document.getElementById('doc-title').value.trim() || 'Archival Record';
+            const content = quill ? quill.root.innerHTML : "";
             const existing = documents.find(d => d.id === currentDocumentId);
             const id = currentDocumentId || Math.random().toString(36).substr(2, 10);
-            const data = { id, title, content, folderId: currentFolderId || 'root', pinned: existing?.pinned || false, created_at: existing?.created_at || new Date().toISOString() };
+            const data = { id, title, content, folderId: currentFolderId || 'root', created_at: existing?.created_at || new Date().toISOString() };
+            
             if(existing) Object.assign(existing, data); else documents.push(data);
             currentDocumentId = id;
-            updateHeaderPinUI(); renderSidebar();
-            showToast("Preserved", "success");
+            renderSidebar();
+            showToast("Record Preserved");
             document.getElementById('delete-btn').classList.remove('hidden');
-            document.getElementById('pin-btn').classList.remove('hidden');
-            await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id), data);
+
+            if (db && currentUser) {
+                await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id), data);
+            } else {
+                localStorage.setItem('eternal_docs', JSON.stringify(documents));
+            }
         };
 
         window.deleteCurrentDocument = async () => {
-            if(!currentDocumentId || !currentUser) return;
+            if(!currentDocumentId) return;
             const id = currentDocumentId;
             documents = documents.filter(d => d.id !== id);
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
+            if (db && currentUser) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
+            } else {
+                localStorage.setItem('eternal_docs', JSON.stringify(documents));
+            }
             createNewDocument(currentFolderId);
-            showToast("Purged", "success");
+            showToast("Record Purged");
         };
 
         window.deleteDocumentById = async (e, id) => {
             e.stopPropagation();
             if(id === currentDocumentId) { window.deleteCurrentDocument(); return; }
             documents = documents.filter(d => d.id !== id);
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
-            renderSidebar(); showToast("Purged", "success");
+            if (db && currentUser) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
+            } else {
+                localStorage.setItem('eternal_docs', JSON.stringify(documents));
+            }
+            renderSidebar(); showToast("Purged");
         };
 
         window.deleteFolder = async (e, id) => {
             e.stopPropagation();
-            for(let d of documents) if(d.folderId === id) {
-                d.folderId = 'root';
-                await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', d.id), d);
-            }
+            documents.forEach(d => { if(d.folderId === id) d.folderId = 'root'; });
             folders = folders.filter(f => f.id !== id);
             if(currentFolderId === id) currentFolderId = null;
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', id));
-            renderSidebar(); showToast("Sector Purged", "success");
+            if (db && currentUser) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', id));
+            } else {
+                localStorage.setItem('eternal_folders', JSON.stringify(folders));
+            }
+            renderSidebar();
         };
 
         window.openDocument = (id) => {
@@ -350,107 +361,110 @@
             if(!d) return;
             currentDocumentId = d.id; currentFolderId = d.folderId;
             document.getElementById('doc-title').value = d.title;
-            quill.root.innerHTML = d.content;
+            if (quill) quill.root.innerHTML = d.content;
             document.getElementById('delete-btn').classList.remove('hidden');
-            document.getElementById('pin-btn').classList.remove('hidden');
-            updateHeaderPinUI(); renderSidebar();
+            renderSidebar();
             if(window.innerWidth < 768) toggleSidebar();
         };
 
         window.openFolderModal = () => {
-            document.getElementById('folder-modal').classList.remove('opacity-0', 'pointer-events-none');
-            document.getElementById('folder-modal-content').classList.remove('scale-90');
+            const m = document.getElementById('folder-modal'), c = document.getElementById('folder-modal-content');
+            m.classList.remove('opacity-0', 'pointer-events-none');
+            c.classList.remove('scale-95');
             document.getElementById('command-menu').classList.remove('active');
         };
 
         window.closeFolderModal = () => {
-            document.getElementById('folder-modal').classList.add('opacity-0', 'pointer-events-none');
-            document.getElementById('folder-modal-content').classList.add('scale-90');
+            const m = document.getElementById('folder-modal'), c = document.getElementById('folder-modal-content');
+            m.classList.add('opacity-0', 'pointer-events-none');
+            c.classList.add('scale-95');
         };
 
         window.submitNewFolder = async () => {
-            if(!currentUser) return;
             const name = document.getElementById('folder-name-input').value.trim();
             if(!name) return;
-            const f = { id: Math.random().toString(36).substr(2, 10), name, pinned: false, created_at: new Date().toISOString() };
+            const f = { id: Math.random().toString(36).substr(2, 10), name, created_at: new Date().toISOString() };
             folders.push(f); closeFolderModal(); renderSidebar();
-            await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', f.id), f);
+            if (db && currentUser) {
+                await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', f.id), f);
+            } else {
+                localStorage.setItem('eternal_folders', JSON.stringify(folders));
+            }
         };
 
         window.openFolder = (id) => { currentFolderId = id; renderSidebar(); };
         window.goBackToFolders = () => { currentFolderId = null; renderSidebar(); };
 
         window.toggleFullscreen = () => {
-            const icon = document.getElementById('fullscreen-icon');
+            const icons = [document.getElementById('fullscreen-icon'), document.getElementById('fullscreen-icon-home')];
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(() => {});
-                icon.className = 'ph ph-corners-in text-2xl';
+                icons.forEach(i => { if(i) i.className = 'ph ph-corners-in text-xl'; });
             } else {
-                document.exitFullscreen();
-                icon.className = 'ph ph-corners-out text-2xl';
+                if (document.exitFullscreen) document.exitFullscreen();
+                icons.forEach(i => { if(i) i.className = 'ph ph-corners-out text-xl'; });
             }
         };
-
-        function updateHeaderPinUI() {
-            const d = documents.find(d => d.id === currentDocumentId);
-            const p = document.getElementById('header-pin-icon');
-            if(d?.pinned) p.classList.add('ph-fill', 'text-yellow-400'); else p.classList.remove('ph-fill', 'text-yellow-400');
-        }
 
         function renderSidebar() {
             const cont = document.getElementById('sidebar-content');
             if(!cont) return;
             let html = '';
-            const sortFn = (a, b) => (a.pinned === b.pinned ? new Date(b.created_at) - new Date(a.created_at) : a.pinned ? -1 : 1);
             const bread = document.getElementById('current-loc-label');
             if (currentFolderId === null) {
-                bread.innerText = 'Root Sector';
-                html += `<div onclick="openFolder('root')" class="sidebar-item p-5 rounded-2xl cursor-pointer flex justify-between items-center group transition-all ${currentFolderId === 'root' ? 'active' : 'hover:bg-white/10'}">
-                    <div class="flex items-center gap-4"><i class="ph ph-archive text-white text-2xl opacity-80"></i><span class="text-[11px] font-bold uppercase text-white">Root Archive</span></div>
-                    <span class="text-[10px] text-white font-black opacity-60">${documents.filter(d => d.folderId === 'root').length}</span>
+                if (bread) bread.innerText = 'CORE ARCHIVE';
+                html += `<div onclick="openFolder('root')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all ${currentFolderId === 'root' ? 'active' : 'hover:bg-white/[0.04]'}">
+                    <div class="flex items-center gap-4"><i class="ph ph-archive text-slate-500 text-lg"></i><span class="text-[10px] font-bold uppercase text-slate-300">Root Records</span></div>
+                    <span class="text-[9px] text-slate-600 font-black opacity-60">${documents.filter(d => d.folderId === 'root').length}</span>
                 </div>`;
-                folders.sort(sortFn).forEach(f => {
-                    html += `<div onclick="openFolder('${f.id}')" class="sidebar-item p-5 rounded-2xl cursor-pointer flex justify-between items-center group transition-all hover:bg-white/10">
-                        <div class="flex items-center gap-4"><i class="ph ph-folder text-blue-400 text-2xl"></i><span class="text-[11px] font-bold uppercase text-white truncate max-w-[120px]">${f.name}</span></div>
+                folders.forEach(f => {
+                    html += `<div onclick="openFolder('${f.id}')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all hover:bg-white/[0.04]">
+                        <div class="flex items-center gap-4"><i class="ph ph-folder text-slate-600 text-lg"></i><span class="text-[10px] font-bold uppercase text-slate-200 truncate max-w-[120px]">${f.name}</span></div>
                         <div class="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all">
-                            <i class="ph ph-trash text-red-500/80 hover:text-red-500" onclick="deleteFolder(event, '${f.id}')"></i>
-                            <span class="text-[10px] text-white font-black opacity-60">${documents.filter(d => d.folderId === f.id).length}</span>
+                            <i class="ph ph-trash text-slate-700 hover:text-red-900" onclick="deleteFolder(event, '${f.id}')"></i>
                         </div>
                     </div>`;
                 });
             } else {
                 const f = folders.find(fold => fold.id === currentFolderId);
-                bread.innerText = currentFolderId === 'root' ? 'Root Sector' : (f?.name || 'Sector');
-                html += `<button onclick="goBackToFolders()" class="text-white hover:text-blue-400 text-[11px] font-black uppercase flex items-center gap-2 mb-8 transition-all px-2"><i class="ph ph-arrow-left"></i> All Sectors</button>`;
-                documents.filter(d => d.folderId === currentFolderId).sort(sortFn).forEach(d => {
+                if (bread) bread.innerText = currentFolderId === 'root' ? 'ROOT SECTOR' : f?.name.toUpperCase();
+                html += `<button onclick="goBackToFolders()" class="text-slate-500 hover:text-white text-[9px] font-black uppercase flex items-center gap-2 mb-10 transition-all px-2"><i class="ph ph-arrow-left"></i> Systems Return</button>`;
+                documents.filter(d => d.folderId === currentFolderId).forEach(d => {
                     const active = d.id === currentDocumentId;
-                    html += `<div onclick="openDocument('${d.id}')" class="sidebar-item p-5 rounded-2xl cursor-pointer flex justify-between items-center group transition-all ${active ? 'active' : 'hover:bg-white/10'}">
-                        <span class="text-[11px] font-bold uppercase text-white truncate">${d.title || 'Untitled Record'}</span>
-                        <i class="ph ph-trash text-red-500/80 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all" onclick="deleteDocumentById(event, '${d.id}')"></i>
+                    html += `<div onclick="openDocument('${d.id}')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all ${active ? 'active' : 'hover:bg-white/[0.03]'}">
+                        <span class="text-[10px] font-bold uppercase text-slate-300 truncate">${d.title}</span>
+                        <i class="ph ph-trash text-slate-800 hover:text-red-900 opacity-0 group-hover:opacity-100 transition-all" onclick="deleteDocumentById(event, '${d.id}')"></i>
                     </div>`;
                 });
             }
             cont.innerHTML = html;
         }
 
-        function showToast(m, t='info') {
+        function showToast(m) {
             const cont = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `glass-panel border-white/30 p-6 rounded-2xl flex items-center gap-5 toast-enter-active shadow-3xl pointer-events-auto`;
-            toast.innerHTML = `<i class="ph ph-sparkle text-blue-400 text-2xl"></i><p class="text-[11px] font-black uppercase text-white">${m}</p>`;
-            cont.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
+            const t = document.createElement('div');
+            t.className = `glass-panel border-white/10 p-5 rounded-2xl flex items-center gap-4 toast-enter-active shadow-3xl pointer-events-auto transition-all duration-500 opacity-100`;
+            t.innerHTML = `<i class="ph ph-circle-wavy-check text-slate-400"></i><p class="text-[9px] font-bold uppercase text-slate-200 tracking-widest">${m}</p>`;
+            cont.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 600); }, 3000);
         }
 
         async function initDB() {
+            if (!auth) {
+                const ld = localStorage.getItem('eternal_docs'), lf = localStorage.getItem('eternal_folders');
+                if (ld) documents = JSON.parse(ld);
+                if (lf) folders = JSON.parse(lf);
+                renderSidebar(); return;
+            }
             try {
                 if (initialToken) await signInWithCustomToken(auth, initialToken);
                 else await signInAnonymously(auth);
                 onAuthStateChanged(auth, user => {
                     if (user) { 
                         currentUser = user; 
-                        document.getElementById('status-dot').className = 'w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]';
-                        document.getElementById('db-status').innerHTML = 'UPLINK ESTABLISHED';
+                        const dot = document.getElementById('status-dot'), st = document.getElementById('db-status');
+                        if (dot) dot.style.backgroundColor = '#94a3b8';
+                        if (st) st.innerHTML = 'SYSTEM ONLINE';
                         loadAll();
                     }
                 });
@@ -458,35 +472,77 @@
         }
 
         async function loadAll() {
-            const dSnap = await getDocs(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs'));
-            documents = []; dSnap.forEach(d => documents.push(d.data()));
-            const fSnap = await getDocs(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders'));
-            folders = []; fSnap.forEach(f => folders.push(f.data()));
-            renderSidebar();
+            if (!db || !currentUser) return;
+            try {
+                const dSnap = await getDocs(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs'));
+                documents = []; dSnap.forEach(d => documents.push(d.data()));
+                const fSnap = await getDocs(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders'));
+                folders = []; fSnap.forEach(f => folders.push(f.data()));
+                renderSidebar();
+            } catch (e) { console.error(e); }
         }
 
         function initStars() {
             const cont = document.getElementById('canvas-container');
+            if (!cont) return;
             const scene = new THREE.Scene();
-            const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 4000);
-            camera.position.z = 500;
+            const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 5000);
+            camera.position.z = 1000;
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setClearColor(0x000000, 0); 
+            renderer.setPixelRatio(window.devicePixelRatio);
             cont.appendChild(renderer.domElement);
             
-            const geo = new THREE.BufferGeometry();
-            const pos = new Float32Array(5000 * 3);
-            for(let i=0; i<5000*3; i++) pos[i] = (Math.random() - 0.5) * 3500;
-            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            const mat = new THREE.PointsMaterial({ size: 2.5, color: 0xffffff, transparent: true, opacity: 0.8 });
-            const stars = new THREE.Points(geo, mat);
-            scene.add(stars);
+            const canvas = document.createElement('canvas');
+            canvas.width = 32; canvas.height = 32;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+            gradient.addColorStop(0, 'rgba(255,255,255,1)');
+            gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+            gradient.addColorStop(0.5, 'rgba(255,255,255,0.2)');
+            gradient.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 32, 32);
+            const starTexture = new THREE.CanvasTexture(canvas);
+
+            const spectral = [0x9bb0ff, 0xaabfff, 0xffffff, 0xfbf8ff, 0xfff4e8, 0xffddb4, 0xffbd6f];
+            const starCount = 6000;
+            const starLayers = [];
+
+            const createLayer = (count, zRange, size, speed) => {
+                const geo = new THREE.BufferGeometry();
+                const pos = new Float32Array(count * 3);
+                const col = new Float32Array(count * 3);
+                for(let i=0; i < count; i++) {
+                    pos[i*3] = (Math.random() - 0.5) * 4000;
+                    pos[i*3+1] = (Math.random() - 0.5) * 4000;
+                    pos[i*3+2] = (Math.random() - 0.5) * zRange;
+                    const c = new THREE.Color(spectral[Math.floor(Math.random() * spectral.length)]);
+                    col[i*3] = c.r; col[i*3+1] = c.g; col[i*3+2] = c.b;
+                }
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+                const mat = new THREE.PointsMaterial({ size, map: starTexture, vertexColors: true, transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending });
+                const points = new THREE.Points(geo, mat);
+                scene.add(points);
+                return { points, speed, count };
+            };
+
+            starLayers.push(createLayer(3000, 4000, 2.0, 0.4));
+            starLayers.push(createLayer(2000, 3000, 3.5, 0.8));
+            starLayers.push(createLayer(1000, 2000, 5.5, 1.8));
 
             const animate = () => {
                 requestAnimationFrame(animate);
-                stars.rotation.y += 0.0004;
-                stars.rotation.x += 0.0001;
+                starLayers.forEach(layer => {
+                    const positions = layer.points.geometry.attributes.position.array;
+                    for (let i = 0; i < layer.count; i++) {
+                        const zIdx = i * 3 + 2;
+                        positions[zIdx] += layer.speed;
+                        if (positions[zIdx] > 1000) positions[zIdx] = -3000;
+                    }
+                    layer.points.geometry.attributes.position.needsUpdate = true;
+                });
                 renderer.render(scene, camera);
             };
             animate();
@@ -497,45 +553,34 @@
             if (typeof Quill === 'undefined') return;
             try {
                 if (window.QuillBlotFormatter) {
-                    const blotFormatterModule = QuillBlotFormatter.default || QuillBlotFormatter;
-                    Quill.register('modules/blotFormatter', blotFormatterModule);
+                    const b = QuillBlotFormatter.default || QuillBlotFormatter;
+                    Quill.register('modules/blotFormatter', b);
                 }
+                
                 const Font = Quill.import('formats/font');
-                Font.whitelist = ['inter', 'cinzel', 'garamond', 'playfair', 'jetbrains', 'montserrat', 'lora'];
+                Font.whitelist = ['inter', 'cinzel', 'garamond', 'playfair', 'jetbrains'];
                 Quill.register(Font, true);
                 
                 quill = new Quill('#editor', {
                     theme: 'snow',
-                    placeholder: 'Transcribe archival data...',
+                    placeholder: 'Preserve archival data...',
                     modules: { 
                         toolbar: [
-                            [{ 'font': Font.whitelist }, { 'size': ['small', false, 'large', 'huge'] }],
-                            [{ 'header': [1, 2, 3, 4, false] }],
-                            ['bold', 'italic', 'underline', 'strike'],
-                            [{ 'color': [] }, { 'background': [] }],
-                            ['blockquote', 'code-block', 'formula'],
+                            [{ 'font': Font.whitelist }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],
+                            ['bold', 'italic', 'underline'],
                             [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                             [{ 'align': [] }],
-                            ['link', 'image', 'video'],
+                            ['blockquote', 'code-block', 'formula'],
                             ['clean']
                         ],
                         blotFormatter: {} 
                     }
                 });
                 quill.root.classList.add('ql-font-inter');
-                addTooltips();
-            } catch (err) { console.error("Quill Init Error:", err); }
+            } catch (err) { console.error(err); }
         }
 
-        function addTooltips() {
-            const tips = { 'ql-font': 'Archive Font', 'ql-size': 'Volume', 'ql-header': 'Priority', 'ql-bold': 'Bold', 'ql-italic': 'Italic', 'ql-underline': 'Underline', 'ql-link': 'Vector Link', 'ql-image': 'Matrix Link' };
-            Object.keys(tips).forEach(sel => {
-                const els = document.querySelectorAll(`.${sel}`);
-                els.forEach(el => el.setAttribute('title', tips[sel]));
-            });
-        }
-
-        const PerspectiveCamera = THREE.PerspectiveCamera;
         window.addEventListener('DOMContentLoaded', () => {
             initStars();
             initEditor();
