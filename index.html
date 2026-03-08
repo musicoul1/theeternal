@@ -35,9 +35,7 @@
             --slate-border: rgba(255, 255, 255, 0.08);
         }
 
-        * {
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { -webkit-tap-highlight-color: transparent; }
 
         body { 
             margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; 
@@ -74,37 +72,21 @@
         /* Fix Quill Font Picker Labels */
         .ql-snow .ql-picker.ql-font .ql-picker-label::before,
         .ql-snow .ql-picker.ql-font .ql-picker-item::before { content: 'Standard'; }
-        
-        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="inter"]::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="inter"]::before { content: 'Standard'; }
-        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="cinzel"]::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="cinzel"]::before { content: 'Eternal'; }
-        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="garamond"]::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="garamond"]::before { content: 'Scholarly'; }
-        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="playfair"]::before { content: 'Imperial'; }
-        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="jetbrains"]::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="jetbrains"]::before { content: 'Technical'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="inter"]::before { content: 'Standard'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="cinzel"]::before { content: 'Eternal'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="garamond"]::before { content: 'Scholarly'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before { content: 'Imperial'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="jetbrains"]::before { content: 'Technical'; }
 
-        /* Toolbar Styling */
         .ql-toolbar.ql-snow { 
-            border: none; 
-            background: rgba(15, 15, 18, 0.9); 
-            border-bottom: 0.5px solid var(--slate-border); 
-            padding: 8px; 
-            display: flex; 
-            flex-wrap: wrap;
-            gap: 4px; 
+            border: none; background: rgba(15, 15, 18, 0.9); border-bottom: 0.5px solid var(--slate-border); 
+            padding: 8px; display: flex; flex-wrap: wrap; gap: 4px; 
         }
         .ql-container.ql-snow { border: none !important; color: #f8fafc; font-size: 1rem; }
         .ql-editor { padding: 1.5rem; line-height: 1.8; font-weight: 300; letter-spacing: 0.015em; }
         
-        @media (min-width: 768px) { 
-            .ql-editor { padding: 3rem 4rem; line-height: 2; }
-        }
-        @media (min-width: 1280px) {
-            .ql-editor { padding: 4rem 8rem; }
-        }
+        @media (min-width: 768px) { .ql-editor { padding: 3rem 4rem; line-height: 2; } }
+        @media (min-width: 1280px) { .ql-editor { padding: 4rem 8rem; } }
 
         .ql-snow .ql-stroke { stroke: #94a3b8; stroke-width: 1.5px; }
         .ql-snow .ql-picker { color: #94a3b8; font-size: 11px; }
@@ -132,11 +114,20 @@
 
         #command-menu { opacity: 0; pointer-events: none; transform: translateY(10px); transition: all 0.3s ease; }
         #command-menu.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        
-        /* Mobile Specific Overrides */
-        @media (max-width: 768px) {
-            .ql-toolbar.ql-snow .ql-formats { margin-right: 8px !important; }
-            .premium-btn span { font-size: 9px; }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .input-field:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.06);
         }
     </style>
 </head>
@@ -147,7 +138,10 @@
 
     <!-- HOME SCREEN -->
     <div id="homepage-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/20 backdrop-blur-[2px]">
-        <div class="absolute top-6 right-6 md:top-10 md:right-10 flex items-center gap-6">
+        <div class="absolute top-6 right-6 md:top-10 md:right-10 flex items-center gap-4">
+            <button id="auth-status-btn" onclick="openAuthModal()" class="text-white/40 hover:text-white transition-all text-[10px] uppercase tracking-[0.2em] font-bold border border-white/10 px-4 py-2 rounded-full">
+                Sign In
+            </button>
             <button onclick="toggleFullscreen()" class="text-white/30 hover:text-white transition-all p-2">
                 <i id="fullscreen-icon-home" class="ph ph-corners-out text-2xl"></i>
             </button>
@@ -165,24 +159,63 @@
         </div>
     </div>
 
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-500 p-6">
+        <div class="glass-panel p-8 md:p-12 rounded-[2rem] max-w-md w-full border-white/10 scale-95 transition-all shadow-3xl text-center relative">
+            <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-slate-500 hover:text-white"><i class="ph ph-x text-2xl"></i></button>
+            
+            <h2 id="auth-title" class="text-2xl font-light tracking-[0.2em] mb-2 uppercase text-white/90" style="font-family: 'Cinzel', serif;">Identity Verification</h2>
+            <p id="auth-subtitle" class="text-[9px] text-slate-500 mb-8 tracking-[0.3em] uppercase font-bold">Secure cross-device archival synchronization.</p>
+            
+            <div class="flex flex-col gap-4 mb-6">
+                <input type="email" id="auth-email" placeholder="Archival Email" class="input-field text-sm">
+                <input type="password" id="auth-password" placeholder="Access Cipher" class="input-field text-sm">
+            </div>
+            
+            <button onclick="handleAuth()" id="auth-main-btn" class="w-full py-4 premium-btn text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.3em] mb-4">Initialize Session</button>
+            
+            <div class="relative py-4 mb-4">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/5"></div></div>
+                <div class="relative flex justify-center text-[8px] uppercase tracking-widest"><span class="bg-transparent px-2 text-slate-600">OR</span></div>
+            </div>
+            
+            <button onclick="handleGoogleAuth()" class="w-full py-4 bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 rounded-xl font-bold text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all">
+                <i class="ph ph-google-logo text-lg"></i> Sign in with Google
+            </button>
+            
+            <p id="auth-toggle-text" class="mt-8 text-[9px] text-slate-500 uppercase tracking-widest">
+                No record found? <button onclick="toggleAuthMode()" class="text-white hover:underline">Establish Account</button>
+            </p>
+        </div>
+    </div>
+
     <!-- WORKSPACE SCREEN -->
     <div id="workspace-overlay" class="workspace-transition absolute inset-0 z-10 flex w-full h-full p-2 sm:p-5 gap-3 lg:gap-5 bg-transparent opacity-0 pointer-events-none transform scale-100 hidden">
-        
         <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"></div>
 
-        <!-- Sidebar -->
         <aside id="sidebar" class="glass-panel fixed inset-y-2 left-2 w-[calc(100%-1rem)] max-w-[300px] lg:relative lg:inset-0 lg:w-72 lg:max-w-none z-40 flex flex-col rounded-[1.5rem] md:rounded-[2rem] overflow-hidden transition-transform duration-500 -translate-x-[110%] lg:translate-x-0">
             <div class="p-6 md:p-8 border-b border-white/5 flex flex-col gap-2 relative">
-                <!-- Navigation Close Button (Mobile Only) -->
-                <button onclick="toggleSidebar()" class="lg:hidden absolute top-6 right-6 text-slate-500 hover:text-white transition-colors p-1" aria-label="Close Navigation">
-                    <i class="ph ph-x text-2xl"></i>
-                </button>
+                <button onclick="toggleSidebar()" class="lg:hidden absolute top-6 right-6 text-slate-500 hover:text-white transition-colors p-1"><i class="ph ph-x text-2xl"></i></button>
 
                 <div class="flex items-center gap-3 cursor-pointer group" onclick="exitWorkspace()">
                     <i class="ph ph-infinity text-xl text-slate-400 group-hover:text-white transition-colors"></i>
                     <h1 class="text-lg font-bold tracking-[0.2em] text-white/90" style="font-family: 'Cinzel', serif;">ETERNAL</h1>
                 </div>
                 <span class="text-[8px] tracking-[0.3em] text-slate-500 uppercase font-bold">Terminal Sector 001</span>
+            </div>
+
+            <!-- User Profile Section -->
+            <div id="user-profile" class="px-6 py-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div id="user-avatar" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-slate-400 overflow-hidden">
+                        <i class="ph ph-user"></i>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span id="user-display-name" class="text-[9px] text-white/80 font-bold truncate tracking-wider uppercase">Guest User</span>
+                        <span id="user-email" class="text-[7px] text-slate-500 truncate lowercase">anonymous@archival.core</span>
+                    </div>
+                </div>
+                <button onclick="handleSignOut()" class="text-slate-600 hover:text-red-400 transition-colors p-1"><i class="ph ph-sign-out text-lg"></i></button>
             </div>
 
             <div id="sidebar-content" class="flex-1 overflow-y-auto px-4 py-6 space-y-1.5 custom-scroll"></div>
@@ -242,7 +275,7 @@
         </main>
     </div>
 
-    <!-- Folder Modal -->
+    <!-- Modals -->
     <div id="folder-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-500 p-6">
         <div class="glass-panel p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] max-w-md w-full border-white/10 scale-95 transition-all shadow-3xl" id="folder-modal-content">
             <h2 class="text-xl md:text-2xl font-light tracking-[0.2em] mb-4 uppercase text-white/90" style="font-family: 'Cinzel', serif;">New Archival Sector</h2>
@@ -259,34 +292,33 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getAuth, signInAnonymously, onAuthStateChanged, 
+            signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+            signOut, GoogleAuthProvider, signInWithPopup, signInWithCustomToken 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
-        // Your specific Firebase configuration
-        const userFirebaseConfig = {
-            apiKey: "AIzaSyBaDBLoe2Wi2WgmJfPRXoEP-ZSgkVhMxVI",
-            authDomain: "musicoul-15025.firebaseapp.com",
-            databaseURL: "https://musicoul-15025-default-rtdb.firebaseio.com",
-            projectId: "musicoul-15025",
-            storageBucket: "musicoul-15025.firebasestorage.app",
-            messagingSenderId: "863099041367",
-            appId: "1:863099041367:web:c3d61399489a219611d512",
-            measurementId: "G-WBPE697N9Q"
+        // Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyArmDPmEovOn8FAWggCukVDNW_jizbx4PY",
+            authDomain: "the-eternal-550ce.firebaseapp.com",
+            projectId: "the-eternal-550ce",
+            storageBucket: "the-eternal-550ce.firebasestorage.app",
+            messagingSenderId: "610399696800",
+            appId: "1:610399696800:web:39d2b9c70a4a7ae3aa96c5",
+            measurementId: "G-5FF7E755H8"
         };
 
-        // Environment Config (Fallback to system variables if provided)
-        const envConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const firebaseConfig = envConfig || userFirebaseConfig;
-        
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'the-eternal-v1';
         const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        let db, auth, analytics, currentUser = null;
+        let db, auth, currentUser = null;
         let quill = null, folders = [], documents = [], currentFolderId = null, currentDocumentId = null;
         let unsubDocs = null, unsubFolders = null;
+        let authMode = 'login';
 
-        // Initialization Logic
+        // Initialization
         async function initSystems() {
             initStars();
             initEditor();
@@ -294,142 +326,195 @@
             const app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
-            
-            if (firebaseConfig.measurementId) {
-                analytics = getAnalytics(app);
-            }
 
-            // Auth Protocol (Rule 3: Auth Before Queries)
+            // MANDATORY RULE 3: Auth BEFORE Queries
             try {
                 if (initialToken) {
-                    await signInWithCustomToken(auth, initialToken);
-                } else {
+                    try {
+                        await signInWithCustomToken(auth, initialToken);
+                    } catch (tokenErr) {
+                        // Fallback if token is mismatched
+                        if (!auth.currentUser) await signInAnonymously(auth);
+                    }
+                } else if (!auth.currentUser) {
                     await signInAnonymously(auth);
                 }
             } catch (err) {
-                console.error("Archival engine authentication failed:", err);
+                console.error("Auth System Error:", err);
             }
 
-            onAuthStateChanged(auth, async (user) => {
+            onAuthStateChanged(auth, (user) => {
                 currentUser = user;
-                const dot = document.getElementById('status-dot');
-                const st = document.getElementById('db-status');
+                updateAuthUI(user);
                 
                 if (user) {
-                    if (dot) dot.style.backgroundColor = '#94a3b8';
-                    if (st) st.innerHTML = 'SYSTEM ONLINE';
-                    setupRealtimeSync(); // Establishing real-time listeners for instant cross-device updates
+                    setupRealtimeSync();
+                    document.getElementById('status-dot').style.backgroundColor = '#94a3b8';
+                    document.getElementById('db-status').innerHTML = 'SYSTEM ONLINE';
                 } else {
-                    if (dot) dot.style.backgroundColor = '#1e293b';
-                    if (st) st.innerHTML = 'SYSTEM OFFLINE';
+                    document.getElementById('status-dot').style.backgroundColor = '#1e293b';
+                    document.getElementById('db-status').innerHTML = 'SYSTEM OFFLINE';
                     if (unsubDocs) unsubDocs();
                     if (unsubFolders) unsubFolders();
+                    documents = [];
+                    folders = [];
+                    renderSidebar();
                 }
             });
         }
 
-        // Real-time synchronization (Rule 1 & 2)
+        function updateAuthUI(user) {
+            const btn = document.getElementById('auth-status-btn');
+            const nameEl = document.getElementById('user-display-name');
+            const emailEl = document.getElementById('user-email');
+            const avatarEl = document.getElementById('user-avatar');
+
+            if (user && !user.isAnonymous) {
+                btn.innerText = "LINKED";
+                btn.classList.add('border-slate-400', 'text-slate-300');
+                nameEl.innerText = user.displayName || user.email.split('@')[0];
+                emailEl.innerText = user.email;
+                if (user.photoURL) {
+                    avatarEl.innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover">`;
+                } else {
+                    avatarEl.innerHTML = `<i class="ph ph-user"></i>`;
+                }
+            } else {
+                btn.innerText = "SIGN IN";
+                btn.classList.remove('border-slate-400', 'text-slate-300');
+                nameEl.innerText = "Guest User";
+                emailEl.innerText = "anonymous@archival.core";
+                avatarEl.innerHTML = `<i class="ph ph-user"></i>`;
+            }
+        }
+
+        // AUTH HANDLERS
+        window.openAuthModal = () => {
+            const m = document.getElementById('auth-modal');
+            m.classList.remove('opacity-0', 'pointer-events-none');
+            m.querySelector('.glass-panel').classList.remove('scale-95');
+        };
+
+        window.closeAuthModal = () => {
+            const m = document.getElementById('auth-modal');
+            m.classList.add('opacity-0', 'pointer-events-none');
+            m.querySelector('.glass-panel').classList.add('scale-95');
+        };
+
+        window.toggleAuthMode = () => {
+            authMode = authMode === 'login' ? 'signup' : 'login';
+            document.getElementById('auth-title').innerText = authMode === 'login' ? 'Identity Verification' : 'New Archival Link';
+            document.getElementById('auth-main-btn').innerText = authMode === 'login' ? 'Initialize Session' : 'Create Record';
+            document.getElementById('auth-toggle-text').innerHTML = authMode === 'login' 
+                ? `No record found? <button onclick="toggleAuthMode()" class="text-white hover:underline">Establish Account</button>`
+                : `Existing Archive? <button onclick="toggleAuthMode()" class="text-white hover:underline">Sign In</button>`;
+        };
+
+        window.handleAuth = async () => {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if (!email || !password) return showToast("Credentials Missing");
+
+            try {
+                if (authMode === 'login') {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showToast("Access Granted");
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    showToast("Record Established");
+                }
+                closeAuthModal();
+            } catch (err) {
+                const msg = err.code ? err.code.split('/')[1].replace(/-/g, ' ') : "System Error";
+                showToast(msg.toUpperCase());
+            }
+        };
+
+        window.handleGoogleAuth = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+                showToast("Google Link Active");
+                closeAuthModal();
+            } catch (err) {
+                showToast("Link Refused");
+            }
+        };
+
+        window.handleSignOut = async () => {
+            try {
+                await signOut(auth);
+                showToast("Identity Severed");
+                createNewDocument('root');
+            } catch (err) {
+                showToast("Logout Failed");
+            }
+        };
+
+        // SYNC LOGIC
         function setupRealtimeSync() {
             if (!currentUser || !db) return;
 
             if (unsubDocs) unsubDocs();
             if (unsubFolders) unsubFolders();
 
-            // Real-time Records Listener (Syncs across all devices instantly)
+            // MANDATORY RULE 1: /artifacts/{appId}/users/{userId}/{collectionName}
             const docCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs');
             unsubDocs = onSnapshot(docCol, (snapshot) => {
-                const oldDocs = [...documents];
                 documents = [];
                 snapshot.forEach(d => documents.push(d.data()));
-                
                 renderSidebar();
-                
-                // If the currently open document was changed by another device, update the editor
-                const currentInStore = documents.find(d => d.id === currentDocumentId);
-                if (currentInStore && quill) {
-                    const currentInOld = oldDocs.find(d => d.id === currentDocumentId);
-                    // Only update if the content has actually changed to avoid losing local cursor focus mid-type
-                    if (currentInOld && currentInStore.content !== currentInOld.content) {
-                        // Optional: Prompt user or auto-update. Here we auto-update the sidebar.
-                        // To update editor safely without cursor jumping, usually check if editor is focused.
-                    }
-                }
-            }, (error) => {
-                console.error("Real-time doc sync failure:", error);
-            });
+            }, (err) => console.error("Snapshot error:", err));
 
-            // Real-time Sectors Listener
             const foldCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders');
             unsubFolders = onSnapshot(foldCol, (snapshot) => {
                 folders = [];
                 snapshot.forEach(f => folders.push(f.data()));
                 renderSidebar();
-            }, (error) => {
-                console.error("Real-time folder sync failure:", error);
-            });
+            }, (err) => console.error("Snapshot error:", err));
         }
 
-        // Action: Preserve (Sync to Firestore)
+        // Action: Preserve
         window.saveDocument = async () => {
+            if (!currentUser) return showToast("Authenticating...");
+            
             const title = document.getElementById('doc-title').value.trim() || 'Archival Record';
             const content = quill ? quill.root.innerHTML : "";
             const existing = documents.find(d => d.id === currentDocumentId);
             const id = currentDocumentId || Math.random().toString(36).substr(2, 10);
             
             const data = { 
-                id, 
-                title, 
-                content, 
+                id, title, content, 
                 folderId: currentFolderId || 'root', 
                 created_at: existing?.created_at || new Date().toISOString(),
                 preserved_at: new Date().toISOString()
             };
             
-            if (db && currentUser) {
-                try {
-                    // Rule 1: Use strict artifact paths
-                    const docPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id);
-                    await setDoc(docPath, data);
-                    currentDocumentId = id;
-                    showToast("Record Preserved");
-                } catch (err) {
-                    showToast("Preservation Failed");
-                }
-            } else {
-                // Local Fallback
-                if(existing) Object.assign(existing, data); else documents.push(data);
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id);
+                await setDoc(docRef, data);
                 currentDocumentId = id;
-                localStorage.setItem('eternal_docs', JSON.stringify(documents));
-                renderSidebar();
-                showToast("Local Backup Created");
+                showToast("Record Preserved");
+            } catch (err) { 
+                showToast("Preservation Failed");
+                console.error(err);
             }
         };
 
         window.submitNewFolder = async () => {
+            if (!currentUser) return;
             const name = document.getElementById('folder-name-input').value.trim();
             if(!name) return;
-            
-            const f = { 
-                id: Math.random().toString(36).substr(2, 10), 
-                name, 
-                created_at: new Date().toISOString() 
-            };
-            
-            if (db && currentUser) {
-                try {
-                    const foldPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', f.id);
-                    await setDoc(foldPath, f);
-                    closeFolderModal();
-                } catch (e) { console.error(e); }
-            } else {
-                folders.push(f);
-                localStorage.setItem('eternal_folders', JSON.stringify(folders));
-                renderSidebar();
+            const f = { id: Math.random().toString(36).substr(2, 10), name, created_at: new Date().toISOString() };
+            try {
+                const foldRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', f.id);
+                await setDoc(foldRef, f);
                 closeFolderModal();
-            }
+            } catch (e) { showToast("Sector Failed"); }
         };
 
-        // Sidebar and Interaction UI logic
+        // UI HELPERS
         window.enterWorkspace = () => {
             const h = document.getElementById('homepage-overlay'), w = document.getElementById('workspace-overlay');
             h.style.opacity = '0'; h.style.transform = 'scale(1.05)';
@@ -487,52 +572,40 @@
         };
 
         window.deleteCurrentDocument = async () => {
-            if(!currentDocumentId) return;
+            if(!currentDocumentId || !currentUser) return;
             const id = currentDocumentId;
-            if (db && currentUser) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
-                } catch (e) { console.error(e); }
-            } else {
-                documents = documents.filter(d => d.id !== id);
-                localStorage.setItem('eternal_docs', JSON.stringify(documents));
-            }
-            createNewDocument(currentFolderId);
-            showToast("Record Purged");
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
+                createNewDocument(currentFolderId);
+                showToast("Record Purged");
+            } catch (e) { showToast("Purge Failed"); }
         };
 
         window.deleteDocumentById = async (e, id) => {
             e.stopPropagation();
-            if (db && currentUser) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
-                } catch (e) { console.error(e); }
-            } else {
-                documents = documents.filter(d => d.id !== id);
-                localStorage.setItem('eternal_docs', JSON.stringify(documents));
-            }
-            if(id === currentDocumentId) createNewDocument(currentFolderId);
-            renderSidebar(); 
-            showToast("Purged");
+            if (!currentUser) return;
+            try { 
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id)); 
+                if(id === currentDocumentId) createNewDocument(currentFolderId);
+                showToast("Purged");
+            } catch (e) { showToast("Purge Failed"); }
         };
 
         window.deleteFolder = async (e, id) => {
             e.stopPropagation();
-            if (db && currentUser) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', id));
-                } catch (e) { console.error(e); }
-            } else {
-                folders = folders.filter(f => f.id !== id);
-                localStorage.setItem('eternal_folders', JSON.stringify(folders));
+            if (!currentUser) return;
+            try { 
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', id)); 
+                if(currentFolderId === id) currentFolderId = null;
                 renderSidebar();
-            }
+            } catch (e) { showToast("Purge Failed"); }
         };
 
         window.openFolderModal = () => {
             document.getElementById('folder-modal').classList.remove('opacity-0', 'pointer-events-none');
             document.getElementById('folder-modal-content').classList.remove('scale-95');
             document.getElementById('command-menu').classList.remove('active');
+            document.getElementById('command-caret').classList.remove('rotate-180');
         };
 
         window.closeFolderModal = () => {
@@ -599,13 +672,6 @@
             t.innerHTML = `<i class="ph ph-circle-wavy-check text-slate-400"></i><p class="text-[9px] font-bold uppercase text-slate-200 tracking-widest">${m}</p>`;
             cont.appendChild(t);
             setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 600); }, 3000);
-        }
-
-        function loadLocalBackup() {
-            const ld = localStorage.getItem('eternal_docs'), lf = localStorage.getItem('eternal_folders');
-            if (ld) documents = JSON.parse(ld);
-            if (lf) folders = JSON.parse(lf);
-            renderSidebar();
         }
 
         function initStars() {
