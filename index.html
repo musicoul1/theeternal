@@ -77,9 +77,12 @@
         }
 
         .ql-editor { 
-            padding: 2rem 2.5rem; 
+            padding: 1.5rem; 
             line-height: 1.7;
             font-family: 'Inter', sans-serif;
+        }
+        @media (min-width: 768px) {
+            .ql-editor { padding: 2rem 2.5rem; }
         }
 
         .ql-snow .ql-stroke { stroke: #94a3b8; stroke-width: 1.2px; }
@@ -100,7 +103,10 @@
         
         .logo-glow {
             text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-            letter-spacing: 0.25em;
+            letter-spacing: 0.2em;
+        }
+        @media (min-width: 768px) {
+            .logo-glow { letter-spacing: 0.25em; }
         }
 
         .premium-btn {
@@ -160,6 +166,16 @@
             background: rgba(255, 255, 255, 0.05);
             padding-left: 1.25rem;
         }
+
+        /* Responsive Formatting Menu */
+        #toolbar-container {
+            max-width: calc(100vw - 2rem);
+            max-height: 40vh;
+            overflow-y: auto;
+        }
+        @media (min-width: 640px) {
+            #toolbar-container { max-width: 450px; max-height: none; overflow-y: visible; }
+        }
     </style>
 </head>
 <body class="antialiased relative overflow-hidden bg-black text-gray-200">
@@ -171,34 +187,37 @@
     <div id="homepage-overlay" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/30 transition-all duration-700 ease-in-out">
         <div class="flex flex-col items-center text-center px-6">
             <div class="mb-6">
-                <i class="ph ph-infinity text-4xl text-white/40 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"></i>
+                <i class="ph ph-infinity text-3xl md:text-4xl text-white/40 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]"></i>
             </div>
-            <h1 class="text-5xl md:text-8xl font-bold text-white mb-6 logo-glow" style="font-family: 'Cinzel', serif;">
+            <h1 class="text-4xl sm:text-5xl md:text-8xl font-bold text-white mb-6 logo-glow" style="font-family: 'Cinzel', serif;">
                 THE ETERNAL
             </h1>
-            <p class="text-gray-400 tracking-[0.6em] font-light mb-12 uppercase text-[10px] md:text-xs opacity-60">
+            <p class="text-gray-400 tracking-[0.4em] md:tracking-[0.6em] font-light mb-12 uppercase text-[9px] md:text-xs opacity-60">
                 I n f i n i t e &nbsp; A r c h i v a l &nbsp; C o r e
             </p>
             
-            <button onclick="enterWorkspace()" class="premium-btn group py-4 px-12 text-white rounded-full font-medium transition-all backdrop-blur-md uppercase tracking-[0.3em] text-[9px] shadow-2xl relative overflow-hidden">
+            <button onclick="enterWorkspace()" class="premium-btn group py-4 px-10 md:px-12 text-white rounded-full font-medium transition-all backdrop-blur-md uppercase tracking-[0.3em] text-[8px] md:text-[9px] shadow-2xl relative overflow-hidden">
                 <span class="relative z-10 flex items-center gap-3">
                     Enter Workspace <i class="ph ph-arrow-right text-base transition-transform group-hover:translate-x-1"></i>
                 </span>
                 <div class="shimmer absolute inset-0"></div>
             </button>
         </div>
-        <div class="absolute bottom-10 text-[9px] text-gray-600 tracking-[0.4em] uppercase opacity-40">
+        <div class="absolute bottom-10 text-[8px] md:text-[9px] text-gray-600 tracking-[0.4em] uppercase opacity-40 text-center px-4">
             Archival Sync Status: Ready
         </div>
     </div>
 
     <!-- PREMIUM WORKSPACE -->
-    <div id="workspace-overlay" class="workspace-transition absolute inset-0 z-10 flex w-full h-full p-3 md:p-4 gap-3 md:gap-4 bg-black/10 opacity-0 pointer-events-none">
+    <div id="workspace-overlay" class="workspace-transition absolute inset-0 z-10 flex w-full h-full p-2 sm:p-3 md:p-4 gap-2 sm:gap-3 md:gap-4 bg-black/10 opacity-0 pointer-events-none">
         
+        <!-- Mobile Sidebar Backdrop -->
+        <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden"></div>
+
         <!-- Premium Sidebar -->
-        <aside class="glass-panel w-full md:w-72 flex-shrink-0 rounded-3xl flex flex-col overflow-hidden z-20 hidden md:flex" id="sidebar">
+        <aside id="sidebar" class="glass-panel fixed inset-y-2 left-2 w-[calc(100%-1rem)] sm:w-80 md:w-72 md:relative md:inset-0 z-40 flex flex-col rounded-3xl overflow-hidden transition-transform duration-300 -translate-x-[110%] md:translate-x-0">
             <!-- Header -->
-            <div class="p-6 border-b border-white/5 flex items-center justify-between">
+            <div class="p-5 md:p-6 border-b border-white/5 flex items-center justify-between">
                 <div class="flex flex-col gap-0.5 cursor-pointer group" onclick="exitWorkspace()">
                     <div class="flex items-center gap-2.5">
                         <i class="ph ph-infinity text-xl text-white group-hover:text-blue-400 transition-colors"></i>
@@ -206,18 +225,20 @@
                     </div>
                     <span class="text-[8px] tracking-[0.25em] text-gray-500 uppercase font-light">Archival Sector</span>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-gray-500"><i class="ph ph-x text-xl"></i></button>
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-500 hover:text-white transition-colors">
+                    <i class="ph ph-x-circle text-2xl"></i>
+                </button>
             </div>
 
             <!-- Main Content Area -->
-            <div id="sidebar-content" class="flex flex-col flex-1 overflow-hidden relative">
+            <div id="sidebar-content" class="flex-1 overflow-y-auto relative">
                 <!-- Navigation UI will be rendered here -->
             </div>
 
-            <!-- Bottom Command Hub (Dropdown/Drop-up) -->
+            <!-- Bottom Command Hub -->
             <div class="p-4 border-t border-white/5 relative bg-black/40">
                 <!-- Drop-up Menu -->
-                <div id="command-menu" class="absolute left-4 right-4 bottom-20 glass-panel rounded-2xl overflow-hidden border border-white/10 z-30">
+                <div id="command-menu" class="absolute left-4 right-4 bottom-20 glass-panel rounded-2xl overflow-hidden border border-white/10 z-30 shadow-2xl">
                     <button onclick="createNewDocument('root')" class="command-item w-full p-4 flex items-center gap-4 text-left border-b border-white/5">
                         <i class="ph ph-plus-circle text-blue-400 text-lg"></i>
                         <div class="flex flex-col">
@@ -257,32 +278,32 @@
         </aside>
 
         <!-- Premium Editor Main Panel -->
-        <main class="flex-1 glass-panel rounded-[2rem] flex flex-col overflow-hidden h-full relative z-10">
-            <header class="px-5 py-4 md:px-8 md:py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
-                <div class="flex items-center gap-5 flex-1">
-                    <button onclick="toggleSidebar()" class="md:hidden text-gray-400"><i class="ph ph-list text-2xl"></i></button>
-                    <div class="flex flex-col gap-0.5 w-full max-w-xl">
-                        <input type="text" id="doc-title" placeholder="Designation..." class="bg-transparent text-xl md:text-2xl font-bold text-white outline-none w-full focus:text-blue-200 transition-all placeholder:opacity-10" value="Untitled Record" style="font-family: 'Cinzel', serif;">
-                        <div id="breadcrumb" class="text-[8px] uppercase tracking-[0.25em] text-gray-500 font-light flex items-center gap-2">
-                            Archive <i class="ph ph-caret-right text-[7px]"></i> <span id="current-loc-label">Root Sector</span>
+        <main class="flex-1 glass-panel rounded-[1.5rem] md:rounded-[2rem] flex flex-col overflow-hidden h-full relative z-10 shadow-2xl">
+            <header class="px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+                <div class="flex items-center gap-3 sm:gap-5 flex-1 min-w-0">
+                    <button onclick="toggleSidebar()" class="md:hidden text-gray-400 flex-shrink-0"><i class="ph ph-list text-2xl"></i></button>
+                    <div class="flex flex-col gap-0.5 w-full max-w-xl truncate">
+                        <input type="text" id="doc-title" placeholder="Designation..." class="bg-transparent text-lg sm:text-xl md:text-2xl font-bold text-white outline-none w-full focus:text-blue-200 transition-all placeholder:opacity-10" value="Untitled Record" style="font-family: 'Cinzel', serif;">
+                        <div id="breadcrumb" class="text-[7px] sm:text-[8px] uppercase tracking-[0.2em] text-gray-500 font-light flex items-center gap-1.5 sm:gap-2 truncate">
+                            Archive <i class="ph ph-caret-right text-[7px]"></i> <span id="current-loc-label" class="truncate">Root Sector</span>
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-2.5">
+                <div class="flex items-center gap-1.5 sm:gap-2.5">
                     <button onclick="toggleCurrentDocPin()" id="pin-btn" class="hidden p-2 text-gray-500 hover:text-yellow-400 transition-all rounded-lg hover:bg-white/5" title="Pin entry">
                         <i class="ph ph-push-pin text-lg pin-icon" id="header-pin-icon"></i>
                     </button>
                     <button onclick="deleteCurrentDocument()" id="delete-btn" class="hidden p-2 text-red-500/30 hover:text-red-500 transition-all rounded-lg hover:bg-red-500/5" title="Purge entry">
                         <i class="ph ph-trash-simple text-lg"></i>
                     </button>
-                    <button onclick="saveDocument()" class="ml-2 py-3 px-6 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.2em] transition-all flex items-center gap-2">
-                        <i class="ph ph-floppy-disk text-sm"></i> Preserve
+                    <button onclick="saveDocument()" class="ml-1 sm:ml-2 py-2.5 px-4 sm:py-3 sm:px-6 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-[8px] md:text-[9px] font-bold uppercase tracking-[0.2em] transition-all flex items-center gap-2">
+                        <i class="ph ph-floppy-disk text-base"></i> <span class="hidden sm:inline">Preserve</span>
                     </button>
                 </div>
             </header>
 
             <div class="flex-1 overflow-y-auto bg-black/10">
-                <div class="max-w-4xl mx-auto min-h-full py-8 px-5 md:px-0">
+                <div class="max-w-4xl mx-auto min-h-full py-6 md:py-8 px-4 sm:px-6 md:px-0">
                     <div id="editor" class="flex-1"></div>
                 </div>
             </div>
@@ -290,11 +311,11 @@
     </div>
 
     <!-- Modals -->
-    <div id="folder-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-500">
-        <div class="glass-panel p-8 rounded-[2rem] max-w-sm w-full border border-white/10 scale-95 transition-all shadow-[0_0_80px_rgba(0,0,0,1)]" id="folder-modal-content">
-            <h2 class="text-xl font-bold tracking-[0.1em] mb-2 uppercase text-white" style="font-family: 'Cinzel', serif;">New Archival Sector</h2>
-            <p class="text-[9px] text-gray-500 mb-8 tracking-[0.2em] uppercase font-light">Initialize a new containment unit.</p>
-            <input type="text" id="folder-name-input" placeholder="Designation..." class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white outline-none text-xs mb-8 focus:border-blue-500/50 transition-all">
+    <div id="folder-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 px-4">
+        <div class="glass-panel p-6 sm:p-8 rounded-[2rem] max-w-sm w-full border border-white/10 scale-95 transition-all shadow-[0_0_80px_rgba(0,0,0,1)]" id="folder-modal-content">
+            <h2 class="text-lg sm:text-xl font-bold tracking-[0.1em] mb-2 uppercase text-white" style="font-family: 'Cinzel', serif;">New Archival Sector</h2>
+            <p class="text-[8px] sm:text-[9px] text-gray-500 mb-6 tracking-[0.2em] uppercase font-light">Initialize a new containment unit.</p>
+            <input type="text" id="folder-name-input" placeholder="Designation..." class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white outline-none text-xs mb-6 focus:border-blue-500/50 transition-all">
             <div class="flex gap-3">
                 <button onclick="closeFolderModal()" class="flex-1 py-3 text-gray-500 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-white transition-colors">Cancel</button>
                 <button onclick="submitNewFolder()" class="flex-1 py-3 bg-white/5 border border-white/20 text-white rounded-xl font-bold text-[9px] uppercase tracking-[0.2em] hover:bg-white/10 transition-colors">Establish</button>
@@ -302,7 +323,7 @@
         </div>
     </div>
 
-    <div id="toast-container" class="fixed bottom-8 right-8 z-50 flex flex-col gap-3 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50 flex flex-col gap-3 pointer-events-none"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -332,24 +353,36 @@
         let currentFolderId = null;
         let currentDocumentId = null;
 
+        // Sidebar Responsive Logic
+        window.toggleSidebar = () => {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            const isHidden = sidebar.classList.contains('-translate-x-[110%]');
+            
+            if (isHidden) {
+                sidebar.classList.remove('-translate-x-[110%]');
+                backdrop.classList.remove('opacity-0', 'pointer-events-none');
+                backdrop.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                sidebar.classList.add('-translate-x-[110%]');
+                backdrop.classList.add('opacity-0', 'pointer-events-none');
+                backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+            }
+        };
+
         // Command Menu Logic
         window.toggleCommandMenu = () => {
             const menu = document.getElementById('command-menu');
             const caret = document.getElementById('command-caret');
             const isActive = menu.classList.toggle('active');
-            
-            if (isActive) {
-                caret.classList.add('rotate-180');
-            } else {
-                caret.classList.remove('rotate-180');
-            }
+            caret.classList.toggle('rotate-180', isActive);
         };
 
-        // Close menu when clicking outside
+        // Close menus when clicking outside
         document.addEventListener('click', (e) => {
             const menu = document.getElementById('command-menu');
             const toggle = document.getElementById('command-toggle');
-            if (!menu.contains(e.target) && !toggle.contains(e.target)) {
+            if (menu && toggle && !menu.contains(e.target) && !toggle.contains(e.target)) {
                 menu.classList.remove('active');
                 document.getElementById('command-caret').classList.remove('rotate-180');
             }
@@ -362,10 +395,12 @@
             setTimeout(() => {
                 document.getElementById('homepage-overlay').classList.add('hidden');
                 document.getElementById('workspace-overlay').classList.remove('opacity-0', 'pointer-events-none');
-                // Ensure initial view is rendered
                 renderSidebar();
+                // If no documents exist, start a fresh session
+                if (documents.length === 0) createNewDocument('root');
             }, 500);
         };
+
         window.exitWorkspace = () => {
             document.getElementById('workspace-overlay').classList.add('opacity-0', 'pointer-events-none');
             document.getElementById('homepage-overlay').classList.remove('hidden');
@@ -374,6 +409,7 @@
                 document.getElementById('homepage-overlay').style.transform = 'scale(1)';
             }, 50);
         };
+
         window.createNewDocument = (folderId = 'root') => {
             currentDocumentId = null;
             currentFolderId = folderId;
@@ -382,8 +418,9 @@
             document.getElementById('delete-btn').classList.add('hidden');
             document.getElementById('pin-btn').classList.add('hidden');
             renderSidebar();
-            if(window.innerWidth < 768) toggleSidebar();
-            // Close command menu if open
+            if (window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('-translate-x-[110%]')) {
+                toggleSidebar();
+            }
             document.getElementById('command-menu').classList.remove('active');
         };
         
@@ -434,11 +471,9 @@
             document.getElementById('pin-btn').classList.remove('hidden');
             updateHeaderPinUI();
             renderSidebar();
-            if(window.innerWidth < 768) toggleSidebar();
+            if (window.innerWidth < 768) toggleSidebar();
         };
 
-        window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('hidden');
-        
         window.openFolderModal = () => {
             document.getElementById('folder-modal').classList.remove('opacity-0', 'pointer-events-none');
             document.getElementById('folder-modal-content').classList.remove('scale-95');
@@ -477,7 +512,7 @@
             if(f) {
                 f.pinned = !f.pinned;
                 renderSidebar();
-                if(!isLocalMode) setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_folders'), fid), f);
+                if(!isLocalMode) setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_folders'), fid), f).catch(console.error);
             }
         };
         window.toggleDocPin = (e, did) => {
@@ -487,7 +522,7 @@
                 d.pinned = !d.pinned;
                 updateHeaderPinUI();
                 renderSidebar();
-                if(!isLocalMode) setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), did), d);
+                if(!isLocalMode) setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), did), d).catch(console.error);
             }
         };
         window.toggleCurrentDocPin = () => {
@@ -696,14 +731,17 @@
                 const folderName = currentFolderId === 'root' ? 'Root Archive' : activeFolder?.name;
                 html += `
                     <div class="p-5 border-b border-white/5 bg-black/40">
-                        <button onclick="goBackToFolders()" class="text-gray-500 hover:text-white text-[8px] tracking-[0.25em] uppercase flex items-center gap-2.5 transition-colors">
+                        <button onclick="goBackToFolders()" class="text-gray-500 hover:text-white text-[8px] tracking-[0.25em] uppercase flex items-center gap-2.5 transition-colors mb-5">
                             <i class="ph ph-arrow-left text-sm"></i> Back to Sectors
                         </button>
-                    </div>
-                    <div class="p-6 bg-black/10">
-                        <h3 class="text-[9px] text-gray-400 uppercase tracking-[0.2em] font-medium flex items-center gap-2.5 mb-2">
-                            <i class="ph ph-folder-open text-blue-400 text-base"></i> ${folderName}
-                        </h3>
+                        <div class="flex flex-col gap-1 mb-5">
+                            <h3 class="text-[9px] text-gray-400 uppercase tracking-[0.2em] font-medium flex items-center gap-2.5">
+                                <i class="ph ph-folder-open text-blue-400 text-base"></i> ${folderName}
+                            </h3>
+                        </div>
+                        <button onclick="createNewDocument('${currentFolderId}')" class="premium-btn w-full py-3.5 text-[8px] font-bold uppercase tracking-[0.2em] text-blue-300 rounded-xl transition-all flex items-center justify-center gap-2.5">
+                            <i class="ph ph-plus-circle text-base"></i> New Entry
+                        </button>
                     </div>
                     <div class="flex-1 overflow-y-auto p-3.5 space-y-1.5">
                 `;
