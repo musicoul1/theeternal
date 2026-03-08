@@ -201,7 +201,7 @@
             <h1 class="text-4xl sm:text-5xl md:text-8xl font-bold text-white mb-6 logo-glow" style="font-family: 'Cinzel', serif;">
                 THE ETERNAL
             </h1>
-            <p class="text-gray-400 tracking-[0.4em] md:tracking-[0.6em] font-light mb-12 uppercase text-[9px] md:text-xs opacity-60">
+            <p class="text-gray-300 tracking-[0.4em] md:tracking-[0.6em] font-light mb-12 uppercase text-[9px] md:text-xs opacity-80">
                 I n f i n i t e &nbsp; A r c h i v a l &nbsp; C o r e
             </p>
             
@@ -212,7 +212,7 @@
                 <div class="shimmer absolute inset-0"></div>
             </button>
         </div>
-        <div class="absolute bottom-10 text-[8px] md:text-[9px] text-gray-600 tracking-[0.4em] uppercase opacity-40 text-center px-4">
+        <div class="absolute bottom-10 text-[8px] md:text-[9px] text-gray-400 tracking-[0.4em] uppercase opacity-60 text-center px-4">
             Archival Sync Status: Ready
         </div>
     </div>
@@ -232,9 +232,9 @@
                         <i class="ph ph-infinity text-xl text-white group-hover:text-blue-400 transition-colors"></i>
                         <h1 class="text-lg font-bold tracking-[0.1em] text-white" style="font-family: 'Cinzel', serif;">ETERNAL</h1>
                     </div>
-                    <span class="text-[8px] tracking-[0.25em] text-gray-500 uppercase font-light">Archival Sector</span>
+                    <span class="text-[8px] tracking-[0.25em] text-gray-400 uppercase font-light">Archival Sector</span>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-gray-500 hover:text-white transition-colors">
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white transition-colors">
                     <i class="ph ph-x-circle text-2xl"></i>
                 </button>
             </div>
@@ -251,14 +251,14 @@
                         <i class="ph ph-plus-circle text-blue-400 text-lg"></i>
                         <div class="flex flex-col">
                             <span class="text-[9px] font-bold uppercase tracking-widest text-white">Initialize Record</span>
-                            <span class="text-[8px] text-gray-500 uppercase tracking-tighter">New text archival entry</span>
+                            <span class="text-[8px] text-gray-400 uppercase tracking-tighter">New text archival entry</span>
                         </div>
                     </button>
                     <button onclick="openFolderModal()" class="command-item w-full p-4 flex items-center gap-4 text-left">
                         <i class="ph ph-folder-plus text-blue-400 text-lg"></i>
                         <div class="flex flex-col">
                             <span class="text-[9px] font-bold uppercase tracking-widest text-white">Establish Sector</span>
-                            <span class="text-[8px] text-gray-500 uppercase tracking-tighter">New containment folder</span>
+                            <span class="text-[8px] text-gray-400 uppercase tracking-tighter">New containment folder</span>
                         </div>
                     </button>
                 </div>
@@ -268,12 +268,12 @@
                         <i class="ph ph-command text-base text-blue-400"></i>
                         Initialize
                     </span>
-                    <i class="ph ph-caret-up text-gray-500 group-hover:text-white transition-transform duration-300" id="command-caret"></i>
+                    <i class="ph ph-caret-up text-gray-400 group-hover:text-white transition-transform duration-300" id="command-caret"></i>
                 </button>
             </div>
 
             <!-- Footer Stats -->
-            <div class="p-4 border-t border-white/5 text-[8px] text-gray-500 flex items-center justify-between tracking-[0.2em] uppercase bg-black/60">
+            <div class="p-4 border-t border-white/5 text-[8px] text-gray-400 flex items-center justify-between tracking-[0.2em] uppercase bg-black/60">
                 <span id="db-status" class="flex items-center gap-2">
                     <div class="w-1 h-1 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]" id="status-dot"></div> OFFLINE
                 </span>
@@ -290,17 +290,17 @@
                 <div class="flex items-center gap-3 sm:gap-5 flex-1 min-w-0">
                     <button onclick="toggleSidebar()" class="md:hidden text-gray-400 flex-shrink-0"><i class="ph ph-list text-2xl"></i></button>
                     <div class="flex flex-col gap-0.5 w-full max-w-xl truncate">
-                        <input type="text" id="doc-title" placeholder="Designation..." class="bg-transparent text-lg sm:text-xl md:text-2xl font-bold text-white outline-none w-full focus:text-blue-200 transition-all placeholder:opacity-10" value="Untitled Record" style="font-family: 'Cinzel', serif;">
-                        <div id="breadcrumb" class="text-[7px] sm:text-[8px] uppercase tracking-[0.2em] text-gray-500 font-light flex items-center gap-1.5 sm:gap-2 truncate">
+                        <input type="text" id="doc-title" placeholder="Designation..." class="bg-transparent text-lg sm:text-xl md:text-2xl font-bold text-white outline-none w-full focus:text-blue-200 transition-all placeholder:opacity-30" value="Untitled Record" style="font-family: 'Cinzel', serif;">
+                        <div id="breadcrumb" class="text-[7px] sm:text-[8px] uppercase tracking-[0.2em] text-gray-400 font-light flex items-center gap-1.5 sm:gap-2 truncate">
                             Archive <i class="ph ph-caret-right text-[7px]"></i> <span id="current-loc-label" class="truncate">Root Sector</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 sm:gap-2.5">
-                    <button onclick="toggleFullscreen()" class="p-2 text-gray-500 hover:text-white transition-all rounded-lg hover:bg-white/5" title="Toggle Immersive View">
+                    <button onclick="toggleFullscreen()" class="p-2 text-gray-400 hover:text-white transition-all rounded-lg hover:bg-white/5" title="Toggle Immersive View">
                         <i id="fullscreen-icon" class="ph ph-corners-out text-lg"></i>
                     </button>
-                    <button onclick="toggleCurrentDocPin()" id="pin-btn" class="hidden p-2 text-gray-500 hover:text-yellow-400 transition-all rounded-lg hover:bg-white/5" title="Pin entry">
+                    <button onclick="toggleCurrentDocPin()" id="pin-btn" class="hidden p-2 text-gray-400 hover:text-yellow-400 transition-all rounded-lg hover:bg-white/5" title="Pin entry">
                         <i class="ph ph-push-pin text-lg pin-icon" id="header-pin-icon"></i>
                     </button>
                     <button onclick="deleteCurrentDocument()" id="delete-btn" class="hidden p-2 text-red-500/30 hover:text-red-500 transition-all rounded-lg hover:bg-red-500/5" title="Purge entry">
@@ -324,10 +324,10 @@
     <div id="folder-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 px-4">
         <div class="glass-panel p-6 sm:p-8 rounded-[2rem] max-w-sm w-full border border-white/10 scale-95 transition-all shadow-[0_0_80px_rgba(0,0,0,1)]" id="folder-modal-content">
             <h2 class="text-lg sm:text-xl font-bold tracking-[0.1em] mb-2 uppercase text-white" style="font-family: 'Cinzel', serif;">New Archival Sector</h2>
-            <p class="text-[8px] sm:text-[9px] text-gray-500 mb-6 tracking-[0.2em] uppercase font-light">Initialize a new containment unit.</p>
+            <p class="text-[8px] sm:text-[9px] text-gray-400 mb-6 tracking-[0.2em] uppercase font-light">Initialize a new containment unit.</p>
             <input type="text" id="folder-name-input" placeholder="Designation..." class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white outline-none text-xs mb-6 focus:border-blue-500/50 transition-all">
             <div class="flex gap-3">
-                <button onclick="closeFolderModal()" class="flex-1 py-3 text-gray-500 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-white transition-colors">Cancel</button>
+                <button onclick="closeFolderModal()" class="flex-1 py-3 text-gray-400 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-white transition-colors">Cancel</button>
                 <button onclick="submitNewFolder()" class="flex-1 py-3 bg-white/5 border border-white/20 text-white rounded-xl font-bold text-[9px] uppercase tracking-[0.2em] hover:bg-white/10 transition-colors">Establish</button>
             </div>
         </div>
@@ -480,6 +480,47 @@
             showToast("Entry Purged", "success");
             if(!isLocalMode) {
                 deleteDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), id)).catch(console.error);
+            }
+        };
+
+        // NEW: Delete specific Document from sidebar
+        window.deleteDocumentById = async (e, id) => {
+            e.stopPropagation();
+            if(!id) return;
+            
+            // If deleting current document, reset view
+            if(id === currentDocumentId) {
+                window.deleteCurrentDocument();
+                return;
+            }
+
+            documents = documents.filter(d => d.id !== id);
+            renderSidebar();
+            showToast("Record Purged", "success");
+            if(!isLocalMode) {
+                deleteDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), id)).catch(console.error);
+            }
+        };
+
+        // NEW: Delete specific Folder from sidebar
+        window.deleteFolder = async (e, id) => {
+            e.stopPropagation();
+            if(!id) return;
+
+            // Move any documents in this folder to root
+            documents.forEach(d => {
+                if(d.folderId === id) {
+                    d.folderId = 'root';
+                    if(!isLocalMode) setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), d.id), d).catch(console.error);
+                }
+            });
+
+            folders = folders.filter(f => f.id !== id);
+            if(currentFolderId === id) currentFolderId = null;
+            renderSidebar();
+            showToast("Sector Purged", "success");
+            if(!isLocalMode) {
+                deleteDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_folders'), id)).catch(console.error);
             }
         };
 
@@ -722,11 +763,11 @@
                     <div class="flex-1 overflow-y-auto px-3.5 pb-8 pt-6 space-y-1">
                         <div onclick="openFolder('root')" class="sidebar-item p-3.5 rounded-xl border border-transparent hover:bg-white/[0.03] cursor-pointer flex justify-between items-center transition-all group ${currentFolderId === 'root' ? 'active bg-white/[0.04]' : ''}">
                             <div class="flex items-center gap-3">
-                                <i class="ph ph-archive text-gray-500 text-lg"></i>
-                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-400">Root Archive</span>
+                                <i class="ph ph-archive text-gray-400 text-lg"></i>
+                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-300">Root Archive</span>
                             </div>
                             <div class="flex items-center gap-3.5">
-                                <span class="text-[8px] text-gray-600 font-mono">${documents.filter(d => d.folderId === 'root').length}</span>
+                                <span class="text-[8px] text-gray-500 font-mono">${documents.filter(d => d.folderId === 'root').length}</span>
                                 <i class="ph ph-plus text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-125" title="New Entry in Root" onclick="event.stopPropagation(); createNewDocument('root')"></i>
                             </div>
                         </div>
@@ -737,13 +778,14 @@
                     html += `
                         <div onclick="openFolder('${f.id}')" class="sidebar-item p-3.5 rounded-xl border border-transparent hover:bg-white/[0.03] cursor-pointer flex justify-between items-center transition-all group ${currentFolderId === f.id ? 'active bg-white/[0.04]' : ''}">
                             <div class="flex items-center gap-3">
-                                <i class="ph ph-folder text-blue-400/40 text-lg"></i>
-                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-300 truncate max-w-[120px]">${f.name}</span>
+                                <i class="ph ph-folder text-blue-400/60 text-lg"></i>
+                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-200 truncate max-w-[110px]">${f.name}</span>
                             </div>
-                            <div class="flex items-center gap-3.5">
+                            <div class="flex items-center gap-2.5">
                                 <i class="ph ph-plus text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-125" title="New Entry in ${f.name}" onclick="event.stopPropagation(); createNewDocument('${f.id}')"></i>
-                                <span class="text-[8px] text-gray-600 font-mono">${count}</span>
-                                <i class="ph ph-push-pin ${f.pinned ? 'ph-fill pinned' : 'text-gray-700 hover:text-yellow-400'} transition-all" onclick="toggleFolderPin(event, '${f.id}')"></i>
+                                <i class="ph ph-trash text-xs text-red-500/40 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all" title="Delete Sector" onclick="deleteFolder(event, '${f.id}')"></i>
+                                <span class="text-[8px] text-gray-500 font-mono">${count}</span>
+                                <i class="ph ph-push-pin ${f.pinned ? 'ph-fill pinned' : 'text-gray-500 hover:text-yellow-400'} transition-all" onclick="toggleFolderPin(event, '${f.id}')"></i>
                             </div>
                         </div>
                     `;
@@ -754,11 +796,11 @@
                 const folderName = currentFolderId === 'root' ? 'Root Archive' : activeFolder?.name;
                 html += `
                     <div class="p-5 border-b border-white/5 bg-black/40">
-                        <button onclick="goBackToFolders()" class="text-gray-500 hover:text-white text-[8px] tracking-[0.25em] uppercase flex items-center gap-2.5 transition-colors mb-5">
+                        <button onclick="goBackToFolders()" class="text-gray-400 hover:text-white text-[8px] tracking-[0.25em] uppercase flex items-center gap-2.5 transition-colors mb-5">
                             <i class="ph ph-arrow-left text-sm"></i> Back to Sectors
                         </button>
                         <div class="flex flex-col gap-1 mb-5">
-                            <h3 class="text-[9px] text-gray-400 uppercase tracking-[0.2em] font-medium flex items-center gap-2.5">
+                            <h3 class="text-[9px] text-gray-300 uppercase tracking-[0.2em] font-medium flex items-center gap-2.5">
                                 <i class="ph ph-folder-open text-blue-400 text-base"></i> ${folderName}
                             </h3>
                         </div>
@@ -770,14 +812,17 @@
                 `;
                 const folderDocs = documents.filter(d => d.folderId === currentFolderId).sort(sorter);
                 if(folderDocs.length === 0) {
-                    html += `<div class="p-8 text-center text-gray-600 text-[8px] uppercase tracking-[0.25em] font-light">Void ... No entries</div>`;
+                    html += `<div class="p-8 text-center text-gray-500 text-[8px] uppercase tracking-[0.25em] font-light">Void ... No entries</div>`;
                 }
                 folderDocs.forEach(d => {
                     const isActive = d.id === currentDocumentId;
                     html += `
-                        <div onclick="openDocument('${d.id}')" class="sidebar-item p-3.5 rounded-xl border ${isActive ? 'bg-blue-600/10 border-blue-500/20' : 'border-transparent hover:bg-white/[0.03]'} cursor-pointer group relative pr-9 transition-all ${isActive ? 'active' : ''}">
-                            <span class="text-[9px] font-bold uppercase tracking-[0.15em] text-gray-300 truncate block">${d.title || 'Untitled'}</span>
-                            <i class="ph ph-push-pin absolute right-3.5 top-1/2 -translate-y-1/2 ${d.pinned ? 'ph-fill pinned' : 'text-gray-700 opacity-0 group-hover:opacity-100 hover:text-yellow-400'} transition-all" onclick="toggleDocPin(event, '${d.id}')"></i>
+                        <div onclick="openDocument('${d.id}')" class="sidebar-item p-3.5 rounded-xl border ${isActive ? 'bg-blue-600/10 border-blue-500/20' : 'border-transparent hover:bg-white/[0.03]'} cursor-pointer group relative pr-14 transition-all ${isActive ? 'active' : ''}">
+                            <span class="text-[9px] font-bold uppercase tracking-[0.15em] text-gray-200 truncate block">${d.title || 'Untitled'}</span>
+                            <div class="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                                <i class="ph ph-trash text-xs text-red-500/40 hover:text-red-500" title="Delete Record" onclick="deleteDocumentById(event, '${d.id}')"></i>
+                                <i class="ph ph-push-pin ${d.pinned ? 'ph-fill pinned' : 'text-gray-500 hover:text-yellow-400'} transition-all" onclick="toggleDocPin(event, '${d.id}')"></i>
+                            </div>
                         </div>
                     `;
                 });
