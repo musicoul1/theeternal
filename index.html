@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Eternal</title>
+    <title>The Eternal | Infinite Archives</title>
     
     <!-- PWA / Installability Meta Tags -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -18,7 +18,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Expanded for more variety -->
+    <!-- Google Fonts: Curated Library -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@200;300;400;500&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
@@ -62,7 +62,8 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
 
-        /* Font Mapping for Quill */
+        /* --- FONT ENGINE --- */
+        /* Core Font Classes */
         .ql-font-inter { font-family: 'Inter', sans-serif; }
         .ql-font-cinzel { font-family: 'Cinzel', serif; }
         .ql-font-garamond { font-family: 'EB Garamond', serif; }
@@ -71,7 +72,44 @@
         .ql-font-montserrat { font-family: 'Montserrat', sans-serif; }
         .ql-font-lora { font-family: 'Lora', serif; }
 
-        /* Toolbar Styling Refinement */
+        /* Font Picker Labels (Displaying the name in the font itself) */
+        .ql-snow .ql-picker.ql-font .ql-picker-label::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item::before {
+            content: 'Standard';
+            font-family: 'Inter', sans-serif;
+        }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="cinzel"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="cinzel"]::before {
+            content: 'Eternal';
+            font-family: 'Cinzel', serif;
+        }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="garamond"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="garamond"]::before {
+            content: 'Scholarly';
+            font-family: 'EB Garamond', serif;
+        }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="playfair"]::before {
+            content: 'Imperial';
+            font-family: 'Playfair Display', serif;
+        }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="jetbrains"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="jetbrains"]::before {
+            content: 'Technical';
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="montserrat"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="montserrat"]::before {
+            content: 'Modernist';
+            font-family: 'Montserrat', sans-serif;
+        }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="lora"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="lora"]::before {
+            content: 'Literary';
+            font-family: 'Lora', serif;
+        }
+
+        /* Quill Toolbar Refinement */
         .ql-toolbar.ql-snow {
             border: none;
             background: rgba(15, 15, 20, 0.5);
@@ -81,7 +119,6 @@
             flex-wrap: wrap;
             gap: 4px;
         }
-        
         .ql-toolbar.ql-snow .ql-formats {
             margin-right: 10px !important;
             padding-right: 10px !important;
@@ -91,18 +128,11 @@
         .ql-container.ql-snow {
             border: none !important;
             color: #f1f5f9;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 300;
-            letter-spacing: 0.015em;
         }
-
-        .ql-editor { 
-            padding: 1.5rem; 
-            line-height: 1.7;
-        }
-        @media (min-width: 768px) {
-            .ql-editor { padding: 2rem 2.5rem; }
-        }
+        .ql-editor { padding: 1.5rem; line-height: 1.8; }
+        @media (min-width: 768px) { .ql-editor { padding: 3rem 4rem; } }
 
         .ql-snow .ql-stroke { stroke: #94a3b8; stroke-width: 1.2px; }
         .ql-snow .ql-fill { fill: #94a3b8; }
@@ -111,23 +141,17 @@
             background-color: #0c0c0e !important; 
             border: 1px solid rgba(255,255,255,0.1) !important; 
             box-shadow: 0 10px 40px rgba(0,0,0,1);
-            border-radius: 8px;
-            padding: 6px !important;
+            border-radius: 12px;
+            padding: 10px !important;
         }
 
+        /* Interaction Styles */
         .toast-enter { transform: translateY(20px); opacity: 0; }
         .toast-enter-active { transform: translateY(0); opacity: 1; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-        
         .pin-icon.pinned { color: #fbbf24; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4)); }
         
-        .logo-glow {
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-            letter-spacing: 0.2em;
-        }
-        @media (min-width: 768px) {
-            .logo-glow { letter-spacing: 0.25em; }
-        }
-
+        .logo-glow { text-shadow: 0 0 15px rgba(255, 255, 255, 0.2); letter-spacing: 0.2em; }
+        
         .premium-btn {
             background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
             border: 1px solid rgba(255,255,255,0.1);
@@ -139,52 +163,26 @@
             transform: translateY(-1px);
         }
 
-        .sidebar-item {
-            transition: all 0.2s ease;
-            position: relative;
-        }
+        .sidebar-item { transition: all 0.2s ease; position: relative; }
         .sidebar-item::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 25%; bottom: 25%; width: 2px;
-            background: #60a5fa;
-            border-radius: 0 4px 4px 0;
-            opacity: 0;
-            transition: opacity 0.2s ease;
+            content: ''; position: absolute; left: 0; top: 25%; bottom: 25%; width: 2px;
+            background: #60a5fa; border-radius: 0 4px 4px 0; opacity: 0; transition: opacity 0.2s ease;
         }
         .sidebar-item.active::before { opacity: 1; }
 
         .shimmer {
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 3s infinite;
+            background-size: 200% 100%; animation: shimmer 3s infinite;
         }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
-        .workspace-transition {
-            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* Command Menu Styles */
+        /* Command Menu */
         #command-menu {
-            transform: translateY(10px);
-            opacity: 0;
-            pointer-events: none;
+            transform: translateY(10px); opacity: 0; pointer-events: none;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        #command-menu.active {
-            transform: translateY(0);
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .command-item {
-            transition: all 0.2s ease;
-        }
-        .command-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            padding-left: 1.25rem;
-        }
+        #command-menu.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        .command-item:hover { background: rgba(255, 255, 255, 0.05); padding-left: 1.25rem; }
     </style>
 </head>
 <body class="antialiased relative overflow-hidden bg-black text-gray-200">
@@ -220,12 +218,9 @@
     <!-- PREMIUM WORKSPACE -->
     <div id="workspace-overlay" class="workspace-transition absolute inset-0 z-10 flex w-full h-full p-2 sm:p-3 md:p-4 gap-2 sm:gap-3 md:gap-4 bg-black/10 opacity-0 pointer-events-none">
         
-        <!-- Mobile Sidebar Backdrop -->
         <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden"></div>
 
-        <!-- Premium Sidebar -->
         <aside id="sidebar" class="glass-panel fixed inset-y-2 left-2 w-[calc(100%-1rem)] sm:w-80 md:w-72 md:relative md:inset-0 z-40 flex flex-col rounded-3xl overflow-hidden transition-transform duration-300 -translate-x-[110%] md:translate-x-0">
-            <!-- Header -->
             <div class="p-5 md:p-6 border-b border-white/5 flex items-center justify-between">
                 <div class="flex flex-col gap-0.5 cursor-pointer group" onclick="exitWorkspace()">
                     <div class="flex items-center gap-2.5">
@@ -239,12 +234,8 @@
                 </button>
             </div>
 
-            <!-- Main Content Area -->
-            <div id="sidebar-content" class="flex-1 overflow-y-auto relative">
-                <!-- Navigation UI -->
-            </div>
+            <div id="sidebar-content" class="flex-1 overflow-y-auto relative"></div>
 
-            <!-- Bottom Command Hub -->
             <div class="p-4 border-t border-white/5 relative bg-black/40">
                 <div id="command-menu" class="absolute left-4 right-4 bottom-20 glass-panel rounded-2xl overflow-hidden border border-white/10 z-30 shadow-2xl">
                     <button onclick="createNewDocument('root')" class="command-item w-full p-4 flex items-center gap-4 text-left border-b border-white/5">
@@ -272,7 +263,6 @@
                 </button>
             </div>
 
-            <!-- Footer Stats -->
             <div class="p-4 border-t border-white/5 text-[8px] text-gray-400 flex items-center justify-between tracking-[0.2em] uppercase bg-black/60">
                 <span id="db-status" class="flex items-center gap-2">
                     <div class="w-1 h-1 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]" id="status-dot"></div> OFFLINE
@@ -284,7 +274,6 @@
             </div>
         </aside>
 
-        <!-- Premium Editor Main Panel -->
         <main class="flex-1 glass-panel rounded-[1.5rem] md:rounded-[2rem] flex flex-col overflow-hidden h-full relative z-10 shadow-2xl">
             <header class="px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
                 <div class="flex items-center gap-3 sm:gap-5 flex-1 min-w-0">
@@ -367,9 +356,7 @@
         window.toggleFullscreen = () => {
             const icon = document.getElementById('fullscreen-icon');
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    showToast(`Error attempting to enable fullscreen: ${err.message}`, 'error');
-                });
+                document.documentElement.requestFullscreen();
                 icon.className = 'ph ph-corners-in text-lg';
             } else {
                 document.exitFullscreen();
@@ -382,7 +369,6 @@
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebar-backdrop');
             const isHidden = sidebar.classList.contains('-translate-x-[110%]');
-            
             if (isHidden) {
                 sidebar.classList.remove('-translate-x-[110%]');
                 backdrop.classList.remove('opacity-0', 'pointer-events-none');
@@ -458,7 +444,6 @@
                 pinned: existing ? existing.pinned : false, 
                 created_at: existing ? existing.created_at : new Date().toISOString() 
             };
-            
             if(existing) Object.assign(existing, data); else documents.push(data);
             currentDocumentId = id;
             updateHeaderPinUI();
@@ -466,7 +451,6 @@
             showToast("Archive Preserved", "success");
             document.getElementById('delete-btn').classList.remove('hidden');
             document.getElementById('pin-btn').classList.remove('hidden');
-
             if (!isLocalMode) {
                 setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), id), data).catch(console.error);
             }
@@ -483,17 +467,13 @@
             }
         };
 
-        // NEW: Delete specific Document from sidebar
         window.deleteDocumentById = async (e, id) => {
             e.stopPropagation();
             if(!id) return;
-            
-            // If deleting current document, reset view
             if(id === currentDocumentId) {
                 window.deleteCurrentDocument();
                 return;
             }
-
             documents = documents.filter(d => d.id !== id);
             renderSidebar();
             showToast("Record Purged", "success");
@@ -502,19 +482,15 @@
             }
         };
 
-        // NEW: Delete specific Folder from sidebar
         window.deleteFolder = async (e, id) => {
             e.stopPropagation();
             if(!id) return;
-
-            // Move any documents in this folder to root
             documents.forEach(d => {
                 if(d.folderId === id) {
                     d.folderId = 'root';
                     if(!isLocalMode) setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), d.id), d).catch(console.error);
                 }
             });
-
             folders = folders.filter(f => f.id !== id);
             if(currentFolderId === id) currentFolderId = null;
             renderSidebar();
@@ -593,9 +569,7 @@
             if(currentDocumentId) window.toggleDocPin({stopPropagation: ()=>{}}, currentDocumentId);
         };
 
-        function generateId() {
-            return Math.random().toString(36).substr(2, 10);
-        }
+        function generateId() { return Math.random().toString(36).substr(2, 10); }
 
         function initSpaceSimulation() {
             if (typeof THREE === 'undefined') { setTimeout(initSpaceSimulation, 200); return; }
@@ -608,7 +582,6 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
             container.appendChild(renderer.domElement);
-
             const canvas = document.createElement('canvas');
             canvas.width = 16; canvas.height = 16;
             const context = canvas.getContext('2d');
@@ -618,7 +591,6 @@
             context.fillStyle = grad;
             context.fillRect(0, 0, 16, 16);
             const texture = new THREE.CanvasTexture(canvas);
-
             const starLayers = [];
             const createStarLayer = (count, size, speed, zRange, opacity) => {
                 const geometry = new THREE.BufferGeometry();
@@ -634,11 +606,9 @@
                 scene.add(mesh);
                 starLayers.push({ mesh, speed, zRange });
             };
-
             createStarLayer(8000, 3, 0.4, 3000, 0.5);
             createStarLayer(4000, 6, 0.8, 3000, 0.7);
             createStarLayer(1000, 15, 2.5, 3000, 0.9);
-
             const animate = () => {
                 requestAnimationFrame(animate);
                 starLayers.forEach(l => {
@@ -662,11 +632,9 @@
             try {
                 const blotFormatterModule = QuillBlotFormatter.default || QuillBlotFormatter;
                 Quill.register('modules/blotFormatter', blotFormatterModule);
-
                 const Font = Quill.import('formats/font');
-                Font.whitelist = ['inter', 'cinzel', 'courier', 'garamond', 'playfair', 'jetbrains', 'montserrat', 'lora'];
+                Font.whitelist = ['inter', 'cinzel', 'garamond', 'playfair', 'jetbrains', 'montserrat', 'lora'];
                 Quill.register(Font, true);
-
                 const toolbarOptions = [
                     [{ 'font': Font.whitelist }, { 'size': ['small', false, 'large', 'huge'] }],
                     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -678,13 +646,11 @@
                     ['link', 'image', 'video'],
                     ['clean']
                 ];
-
                 quill = new Quill('#editor', {
                     theme: 'snow',
                     placeholder: 'Begin data transcription...',
                     modules: { toolbar: toolbarOptions, blotFormatter: {} }
                 });
-                
                 quill.root.classList.add('ql-font-inter');
                 addTooltips();
             } catch (err) { console.error(err); }
@@ -711,21 +677,15 @@
                 await signInAnonymously(auth);
                 onAuthStateChanged(auth, (user) => {
                     if (user) { 
-                        currentUser = user; 
-                        isLocalMode = false; 
+                        currentUser = user; isLocalMode = false; 
                         const dot = document.getElementById('status-dot');
-                        if (dot) {
-                            dot.style.backgroundColor = '#60a5fa';
-                            dot.style.boxShadow = '0 0 8px #60a5fa';
-                        }
+                        if (dot) { dot.style.backgroundColor = '#60a5fa'; dot.style.boxShadow = '0 0 8px #60a5fa'; }
                         const statusText = document.getElementById('db-status');
                         if (statusText) statusText.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_6px_#60a5fa]" id="status-dot"></div> UPLINK ESTABLISHED';
                         loadAllData(); 
                     }
                 });
-            } catch (err) {
-                isLocalMode = true; currentUser = { uid: 'local' }; renderSidebar();
-            }
+            } catch (err) { isLocalMode = true; currentUser = { uid: 'local' }; renderSidebar(); }
         }
 
         async function loadAllData() {
@@ -748,59 +708,49 @@
         function renderSidebar() {
             const container = document.getElementById('sidebar-content');
             if (!container) return;
-            
             let html = '';
             const sorter = (a, b) => (a.pinned === b.pinned ? new Date(b.created_at) - new Date(a.created_at) : a.pinned ? -1 : 1);
-
             const activeFolder = folders.find(f => f.id === currentFolderId);
             const breadcrumbLabel = currentFolderId === 'root' ? 'Root Sector' : (activeFolder ? activeFolder.name : 'Root Sector');
             const labelEl = document.getElementById('current-loc-label');
             if(labelEl) labelEl.innerText = breadcrumbLabel;
 
             if (currentFolderId === null) {
-                // Main list view
-                html += `
-                    <div class="flex-1 overflow-y-auto px-3.5 pb-8 pt-6 space-y-1">
+                html += `<div class="flex-1 overflow-y-auto px-3.5 pb-8 pt-6 space-y-1">
                         <div onclick="openFolder('root')" class="sidebar-item p-3.5 rounded-xl border border-transparent hover:bg-white/[0.03] cursor-pointer flex justify-between items-center transition-all group ${currentFolderId === 'root' ? 'active bg-white/[0.04]' : ''}">
                             <div class="flex items-center gap-3">
-                                <i class="ph ph-archive text-gray-400 text-lg"></i>
-                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-300">Root Archive</span>
+                                <i class="ph ph-archive text-gray-300 text-lg"></i>
+                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-200">Root Archive</span>
                             </div>
                             <div class="flex items-center gap-3.5">
-                                <span class="text-[8px] text-gray-500 font-mono">${documents.filter(d => d.folderId === 'root').length}</span>
+                                <span class="text-[8px] text-gray-400 font-mono">${documents.filter(d => d.folderId === 'root').length}</span>
                                 <i class="ph ph-plus text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-125" title="New Entry in Root" onclick="event.stopPropagation(); createNewDocument('root')"></i>
                             </div>
-                        </div>
-                `;
-
+                        </div>`;
                 folders.sort(sorter).forEach(f => {
                     const count = documents.filter(d => d.folderId === f.id).length;
-                    html += `
-                        <div onclick="openFolder('${f.id}')" class="sidebar-item p-3.5 rounded-xl border border-transparent hover:bg-white/[0.03] cursor-pointer flex justify-between items-center transition-all group ${currentFolderId === f.id ? 'active bg-white/[0.04]' : ''}">
+                    html += `<div onclick="openFolder('${f.id}')" class="sidebar-item p-3.5 rounded-xl border border-transparent hover:bg-white/[0.03] cursor-pointer flex justify-between items-center transition-all group ${currentFolderId === f.id ? 'active bg-white/[0.04]' : ''}">
                             <div class="flex items-center gap-3">
                                 <i class="ph ph-folder text-blue-400/60 text-lg"></i>
-                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-200 truncate max-w-[110px]">${f.name}</span>
+                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-100 truncate max-w-[110px]">${f.name}</span>
                             </div>
                             <div class="flex items-center gap-2.5">
-                                <i class="ph ph-plus text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-125" title="New Entry in ${f.name}" onclick="event.stopPropagation(); createNewDocument('${f.id}')"></i>
-                                <i class="ph ph-trash text-xs text-red-500/40 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all" title="Delete Sector" onclick="deleteFolder(event, '${f.id}')"></i>
-                                <span class="text-[8px] text-gray-500 font-mono">${count}</span>
-                                <i class="ph ph-push-pin ${f.pinned ? 'ph-fill pinned' : 'text-gray-500 hover:text-yellow-400'} transition-all" onclick="toggleFolderPin(event, '${f.id}')"></i>
+                                <i class="ph ph-plus text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-125" onclick="event.stopPropagation(); createNewDocument('${f.id}')"></i>
+                                <i class="ph ph-trash text-xs text-red-500/60 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all" onclick="deleteFolder(event, '${f.id}')"></i>
+                                <span class="text-[8px] text-gray-400 font-mono">${count}</span>
+                                <i class="ph ph-push-pin ${f.pinned ? 'ph-fill pinned' : 'text-gray-400 hover:text-yellow-400'} transition-all" onclick="toggleFolderPin(event, '${f.id}')"></i>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
                 html += `</div>`;
             } else {
-                // Focused folder view
                 const folderName = currentFolderId === 'root' ? 'Root Archive' : activeFolder?.name;
-                html += `
-                    <div class="p-5 border-b border-white/5 bg-black/40">
-                        <button onclick="goBackToFolders()" class="text-gray-400 hover:text-white text-[8px] tracking-[0.25em] uppercase flex items-center gap-2.5 transition-colors mb-5">
+                html += `<div class="p-5 border-b border-white/5 bg-black/40">
+                        <button onclick="goBackToFolders()" class="text-gray-300 hover:text-white text-[8px] tracking-[0.25em] uppercase flex items-center gap-2.5 transition-colors mb-5">
                             <i class="ph ph-arrow-left text-sm"></i> Back to Sectors
                         </button>
                         <div class="flex flex-col gap-1 mb-5">
-                            <h3 class="text-[9px] text-gray-300 uppercase tracking-[0.2em] font-medium flex items-center gap-2.5">
+                            <h3 class="text-[9px] text-gray-200 uppercase tracking-[0.2em] font-medium flex items-center gap-2.5">
                                 <i class="ph ph-folder-open text-blue-400 text-base"></i> ${folderName}
                             </h3>
                         </div>
@@ -808,23 +758,18 @@
                             <i class="ph ph-plus-circle text-base"></i> New Entry
                         </button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-3.5 space-y-1.5">
-                `;
+                    <div class="flex-1 overflow-y-auto p-3.5 space-y-1.5">`;
                 const folderDocs = documents.filter(d => d.folderId === currentFolderId).sort(sorter);
-                if(folderDocs.length === 0) {
-                    html += `<div class="p-8 text-center text-gray-500 text-[8px] uppercase tracking-[0.25em] font-light">Void ... No entries</div>`;
-                }
+                if(folderDocs.length === 0) html += `<div class="p-8 text-center text-gray-400 text-[8px] uppercase tracking-[0.25em] font-light">Void ... No entries</div>`;
                 folderDocs.forEach(d => {
                     const isActive = d.id === currentDocumentId;
-                    html += `
-                        <div onclick="openDocument('${d.id}')" class="sidebar-item p-3.5 rounded-xl border ${isActive ? 'bg-blue-600/10 border-blue-500/20' : 'border-transparent hover:bg-white/[0.03]'} cursor-pointer group relative pr-14 transition-all ${isActive ? 'active' : ''}">
-                            <span class="text-[9px] font-bold uppercase tracking-[0.15em] text-gray-200 truncate block">${d.title || 'Untitled'}</span>
+                    html += `<div onclick="openDocument('${d.id}')" class="sidebar-item p-3.5 rounded-xl border ${isActive ? 'bg-blue-600/10 border-blue-500/20' : 'border-transparent hover:bg-white/[0.03]'} cursor-pointer group relative pr-14 transition-all ${isActive ? 'active' : ''}">
+                            <span class="text-[9px] font-bold uppercase tracking-[0.15em] text-gray-100 truncate block">${d.title || 'Untitled'}</span>
                             <div class="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
-                                <i class="ph ph-trash text-xs text-red-500/40 hover:text-red-500" title="Delete Record" onclick="deleteDocumentById(event, '${d.id}')"></i>
-                                <i class="ph ph-push-pin ${d.pinned ? 'ph-fill pinned' : 'text-gray-500 hover:text-yellow-400'} transition-all" onclick="toggleDocPin(event, '${d.id}')"></i>
+                                <i class="ph ph-trash text-xs text-red-500/60 hover:text-red-500" onclick="deleteDocumentById(event, '${d.id}')"></i>
+                                <i class="ph ph-push-pin ${d.pinned ? 'ph-fill pinned' : 'text-gray-400 hover:text-yellow-400'} transition-all" onclick="toggleDocPin(event, '${d.id}')"></i>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
                 html += `</div>`;
             }
