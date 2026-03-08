@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Eternal | Infinite Archives</title>
     
+    <!-- PWA / Installability Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="The Eternal">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Link to manifest via Data URI for single-file installability -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"The Eternal","short_name":"Eternal","start_url":".","display":"standalone","background_color":"#000000","theme_color":"#000000","icons":[{"src":"https://unpkg.com/@phosphor-icons/core@2.0.8/assets/duotone/infinity-duotone.svg","sizes":"192x192","type":"image/svg+xml"}]}'>
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -290,6 +300,10 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 sm:gap-2.5">
+                    <!-- Fullscreen Toggle Button -->
+                    <button onclick="toggleFullscreen()" class="p-2 text-gray-500 hover:text-white transition-all rounded-lg hover:bg-white/5" title="Toggle Immersive View">
+                        <i id="fullscreen-icon" class="ph ph-corners-out text-lg"></i>
+                    </button>
                     <button onclick="toggleCurrentDocPin()" id="pin-btn" class="hidden p-2 text-gray-500 hover:text-yellow-400 transition-all rounded-lg hover:bg-white/5" title="Pin entry">
                         <i class="ph ph-push-pin text-lg pin-icon" id="header-pin-icon"></i>
                     </button>
@@ -352,6 +366,20 @@
         let documents = [];
         let currentFolderId = null;
         let currentDocumentId = null;
+
+        // Fullscreen Logic
+        window.toggleFullscreen = () => {
+            const icon = document.getElementById('fullscreen-icon');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    showToast(`Error attempting to enable fullscreen: ${err.message}`, 'error');
+                });
+                icon.className = 'ph ph-corners-in text-lg';
+            } else {
+                document.exitFullscreen();
+                icon.className = 'ph ph-corners-out text-lg';
+            }
+        };
 
         // Sidebar Responsive Logic
         window.toggleSidebar = () => {
