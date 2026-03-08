@@ -260,32 +260,46 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
-        // Environment Config
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "" };
+        // Your specific Firebase configuration
+        const userFirebaseConfig = {
+            apiKey: "AIzaSyBaDBLoe2Wi2WgmJfPRXoEP-ZSgkVhMxVI",
+            authDomain: "musicoul-15025.firebaseapp.com",
+            databaseURL: "https://musicoul-15025-default-rtdb.firebaseio.com",
+            projectId: "musicoul-15025",
+            storageBucket: "musicoul-15025.firebasestorage.app",
+            messagingSenderId: "863099041367",
+            appId: "1:863099041367:web:c3d61399489a219611d512",
+            measurementId: "G-WBPE697N9Q"
+        };
+
+        // Environment Config (Fallback to system variables if provided)
+        const envConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const firebaseConfig = envConfig || userFirebaseConfig;
+        
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'the-eternal-v1';
         const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        let db, auth, currentUser = null;
+        let db, auth, analytics, currentUser = null;
         let quill = null, folders = [], documents = [], currentFolderId = null, currentDocumentId = null;
+        let unsubDocs = null, unsubFolders = null;
 
-        // Initialization Logic (Auth Before Queries Rule)
+        // Initialization Logic
         async function initSystems() {
             initStars();
             initEditor();
 
-            if (!firebaseConfig.apiKey) {
-                console.warn("Archival engine offline: No configuration detected.");
-                loadLocalBackup();
-                return;
-            }
-
             const app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
+            
+            if (firebaseConfig.measurementId) {
+                analytics = getAnalytics(app);
+            }
 
-            // Strict Auth-First Execution
+            // Auth Protocol (Rule 3: Auth Before Queries)
             try {
                 if (initialToken) {
                     await signInWithCustomToken(auth, initialToken);
@@ -293,7 +307,7 @@
                     await signInAnonymously(auth);
                 }
             } catch (err) {
-                console.error("Archival authentication failed:", err);
+                console.error("Archival engine authentication failed:", err);
             }
 
             onAuthStateChanged(auth, async (user) => {
@@ -304,38 +318,58 @@
                 if (user) {
                     if (dot) dot.style.backgroundColor = '#94a3b8';
                     if (st) st.innerHTML = 'SYSTEM ONLINE';
-                    await syncFromArchive();
+                    setupRealtimeSync(); // Establishing real-time listeners for instant cross-device updates
                 } else {
                     if (dot) dot.style.backgroundColor = '#1e293b';
                     if (st) st.innerHTML = 'SYSTEM OFFLINE';
+                    if (unsubDocs) unsubDocs();
+                    if (unsubFolders) unsubFolders();
                 }
             });
         }
 
-        // Database Sync Logic
-        async function syncFromArchive() {
+        // Real-time synchronization (Rule 1 & 2)
+        function setupRealtimeSync() {
             if (!currentUser || !db) return;
-            try {
-                // Fetch Records (Documents)
-                const docRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs');
-                const dSnap = await getDocs(docRef);
+
+            if (unsubDocs) unsubDocs();
+            if (unsubFolders) unsubFolders();
+
+            // Real-time Records Listener (Syncs across all devices instantly)
+            const docCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs');
+            unsubDocs = onSnapshot(docCol, (snapshot) => {
+                const oldDocs = [...documents];
                 documents = [];
-                dSnap.forEach(d => documents.push(d.data()));
-
-                // Fetch Sectors (Folders)
-                const foldRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders');
-                const fSnap = await getDocs(foldRef);
-                folders = [];
-                fSnap.forEach(f => folders.push(f.data()));
-
+                snapshot.forEach(d => documents.push(d.data()));
+                
                 renderSidebar();
-                showToast("Archive Synchronized");
-            } catch (err) {
-                console.error("Archive sync error:", err);
-            }
+                
+                // If the currently open document was changed by another device, update the editor
+                const currentInStore = documents.find(d => d.id === currentDocumentId);
+                if (currentInStore && quill) {
+                    const currentInOld = oldDocs.find(d => d.id === currentDocumentId);
+                    // Only update if the content has actually changed to avoid losing local cursor focus mid-type
+                    if (currentInOld && currentInStore.content !== currentInOld.content) {
+                        // Optional: Prompt user or auto-update. Here we auto-update the sidebar.
+                        // To update editor safely without cursor jumping, usually check if editor is focused.
+                    }
+                }
+            }, (error) => {
+                console.error("Real-time doc sync failure:", error);
+            });
+
+            // Real-time Sectors Listener
+            const foldCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders');
+            unsubFolders = onSnapshot(foldCol, (snapshot) => {
+                folders = [];
+                snapshot.forEach(f => folders.push(f.data()));
+                renderSidebar();
+            }, (error) => {
+                console.error("Real-time folder sync failure:", error);
+            });
         }
 
-        // Action: Preserve (Save)
+        // Action: Preserve (Sync to Firestore)
         window.saveDocument = async () => {
             const title = document.getElementById('doc-title').value.trim() || 'Archival Record';
             const content = quill ? quill.root.innerHTML : "";
@@ -351,29 +385,26 @@
                 preserved_at: new Date().toISOString()
             };
             
-            // Update local memory
-            if(existing) Object.assign(existing, data); else documents.push(data);
-            currentDocumentId = id;
-            
-            // Database Sync
             if (db && currentUser) {
                 try {
+                    // Rule 1: Use strict artifact paths
                     const docPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id);
                     await setDoc(docPath, data);
+                    currentDocumentId = id;
                     showToast("Record Preserved");
                 } catch (err) {
                     showToast("Preservation Failed");
                 }
             } else {
+                // Local Fallback
+                if(existing) Object.assign(existing, data); else documents.push(data);
+                currentDocumentId = id;
                 localStorage.setItem('eternal_docs', JSON.stringify(documents));
-                showToast("Local Preservation Active");
+                renderSidebar();
+                showToast("Local Backup Created");
             }
-            
-            renderSidebar();
-            document.getElementById('delete-btn').classList.remove('hidden');
         };
 
-        // Action: Establish Sector (Folder)
         window.submitNewFolder = async () => {
             const name = document.getElementById('folder-name-input').value.trim();
             if(!name) return;
@@ -384,39 +415,21 @@
                 created_at: new Date().toISOString() 
             };
             
-            folders.push(f);
-            closeFolderModal();
-
             if (db && currentUser) {
                 try {
                     const foldPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', f.id);
                     await setDoc(foldPath, f);
+                    closeFolderModal();
                 } catch (e) { console.error(e); }
             } else {
+                folders.push(f);
                 localStorage.setItem('eternal_folders', JSON.stringify(folders));
+                renderSidebar();
+                closeFolderModal();
             }
-            renderSidebar();
         };
 
-        // Action: Purge (Delete Doc)
-        window.deleteCurrentDocument = async () => {
-            if(!currentDocumentId) return;
-            const id = currentDocumentId;
-            documents = documents.filter(d => d.id !== id);
-            
-            if (db && currentUser) {
-                try {
-                    await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
-                } catch (e) { console.error(e); }
-            } else {
-                localStorage.setItem('eternal_docs', JSON.stringify(documents));
-            }
-            
-            createNewDocument(currentFolderId);
-            showToast("Record Purged");
-        };
-
-        // UI Helpers
+        // Sidebar and Interaction UI logic
         window.enterWorkspace = () => {
             const h = document.getElementById('homepage-overlay'), w = document.getElementById('workspace-overlay');
             h.style.opacity = '0'; h.style.transform = 'scale(1.05)';
@@ -462,32 +475,6 @@
             document.getElementById('command-caret').classList.remove('rotate-180');
         };
 
-        window.deleteDocumentById = async (e, id) => {
-            e.stopPropagation();
-            if(id === currentDocumentId) { window.deleteCurrentDocument(); return; }
-            documents = documents.filter(d => d.id !== id);
-            if (db && currentUser) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
-            } else {
-                localStorage.setItem('eternal_docs', JSON.stringify(documents));
-            }
-            renderSidebar(); 
-            showToast("Purged");
-        };
-
-        window.deleteFolder = async (e, id) => {
-            e.stopPropagation();
-            documents.forEach(d => { if(d.folderId === id) d.folderId = 'root'; });
-            folders = folders.filter(f => f.id !== id);
-            if(currentFolderId === id) currentFolderId = null;
-            if (db && currentUser) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', id));
-            } else {
-                localStorage.setItem('eternal_folders', JSON.stringify(folders));
-            }
-            renderSidebar();
-        };
-
         window.openDocument = (id) => {
             const d = documents.find(d => d.id === id);
             if(!d) return;
@@ -497,6 +484,49 @@
             document.getElementById('delete-btn').classList.remove('hidden');
             renderSidebar();
             if(window.innerWidth < 1024) toggleSidebar();
+        };
+
+        window.deleteCurrentDocument = async () => {
+            if(!currentDocumentId) return;
+            const id = currentDocumentId;
+            if (db && currentUser) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
+                } catch (e) { console.error(e); }
+            } else {
+                documents = documents.filter(d => d.id !== id);
+                localStorage.setItem('eternal_docs', JSON.stringify(documents));
+            }
+            createNewDocument(currentFolderId);
+            showToast("Record Purged");
+        };
+
+        window.deleteDocumentById = async (e, id) => {
+            e.stopPropagation();
+            if (db && currentUser) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
+                } catch (e) { console.error(e); }
+            } else {
+                documents = documents.filter(d => d.id !== id);
+                localStorage.setItem('eternal_docs', JSON.stringify(documents));
+            }
+            if(id === currentDocumentId) createNewDocument(currentFolderId);
+            renderSidebar(); 
+            showToast("Purged");
+        };
+
+        window.deleteFolder = async (e, id) => {
+            e.stopPropagation();
+            if (db && currentUser) {
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', id));
+                } catch (e) { console.error(e); }
+            } else {
+                folders = folders.filter(f => f.id !== id);
+                localStorage.setItem('eternal_folders', JSON.stringify(folders));
+                renderSidebar();
+            }
         };
 
         window.openFolderModal = () => {
