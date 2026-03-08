@@ -63,7 +63,6 @@
         }
 
         /* --- FONT ENGINE --- */
-        /* Core Font Classes */
         .ql-font-inter { font-family: 'Inter', sans-serif; }
         .ql-font-cinzel { font-family: 'Cinzel', serif; }
         .ql-font-garamond { font-family: 'EB Garamond', serif; }
@@ -72,7 +71,6 @@
         .ql-font-montserrat { font-family: 'Montserrat', sans-serif; }
         .ql-font-lora { font-family: 'Lora', serif; }
 
-        /* Font Picker Labels (Displaying the name in the font itself) */
         .ql-snow .ql-picker.ql-font .ql-picker-label::before,
         .ql-snow .ql-picker.ql-font .ql-picker-item::before {
             content: 'Standard';
@@ -109,7 +107,6 @@
             font-family: 'Lora', serif;
         }
 
-        /* Quill Toolbar Refinement */
         .ql-toolbar.ql-snow {
             border: none;
             background: rgba(15, 15, 20, 0.5);
@@ -199,7 +196,7 @@
             <h1 class="text-4xl sm:text-5xl md:text-8xl font-bold text-white mb-6 logo-glow" style="font-family: 'Cinzel', serif;">
                 THE ETERNAL
             </h1>
-            <p class="text-gray-300 tracking-[0.4em] md:tracking-[0.6em] font-light mb-12 uppercase text-[9px] md:text-xs opacity-80">
+            <p class="text-gray-200 tracking-[0.4em] md:tracking-[0.6em] font-light mb-12 uppercase text-[9px] md:text-xs opacity-90">
                 I n f i n i t e &nbsp; A r c h i v a l &nbsp; C o r e
             </p>
             
@@ -210,7 +207,7 @@
                 <div class="shimmer absolute inset-0"></div>
             </button>
         </div>
-        <div class="absolute bottom-10 text-[8px] md:text-[9px] text-gray-400 tracking-[0.4em] uppercase opacity-60 text-center px-4">
+        <div class="absolute bottom-10 text-[8px] md:text-[9px] text-gray-300 tracking-[0.4em] uppercase opacity-70 text-center px-4">
             Archival Sync Status: Ready
         </div>
     </div>
@@ -227,9 +224,9 @@
                         <i class="ph ph-infinity text-xl text-white group-hover:text-blue-400 transition-colors"></i>
                         <h1 class="text-lg font-bold tracking-[0.1em] text-white" style="font-family: 'Cinzel', serif;">ETERNAL</h1>
                     </div>
-                    <span class="text-[8px] tracking-[0.25em] text-gray-400 uppercase font-light">Archival Sector</span>
+                    <span class="text-[8px] tracking-[0.25em] text-gray-300 uppercase font-medium">Archival Sector</span>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden text-gray-400 hover:text-white transition-colors">
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-300 hover:text-white transition-colors">
                     <i class="ph ph-x-circle text-2xl"></i>
                 </button>
             </div>
@@ -242,14 +239,14 @@
                         <i class="ph ph-plus-circle text-blue-400 text-lg"></i>
                         <div class="flex flex-col">
                             <span class="text-[9px] font-bold uppercase tracking-widest text-white">Initialize Record</span>
-                            <span class="text-[8px] text-gray-400 uppercase tracking-tighter">New text archival entry</span>
+                            <span class="text-[8px] text-gray-300 uppercase tracking-tighter font-medium">New text archival entry</span>
                         </div>
                     </button>
                     <button onclick="openFolderModal()" class="command-item w-full p-4 flex items-center gap-4 text-left">
                         <i class="ph ph-folder-plus text-blue-400 text-lg"></i>
                         <div class="flex flex-col">
                             <span class="text-[9px] font-bold uppercase tracking-widest text-white">Establish Sector</span>
-                            <span class="text-[8px] text-gray-400 uppercase tracking-tighter">New containment folder</span>
+                            <span class="text-[8px] text-gray-300 uppercase tracking-tighter font-medium">New containment folder</span>
                         </div>
                     </button>
                 </div>
@@ -259,11 +256,11 @@
                         <i class="ph ph-command text-base text-blue-400"></i>
                         Initialize
                     </span>
-                    <i class="ph ph-caret-up text-gray-400 group-hover:text-white transition-transform duration-300" id="command-caret"></i>
+                    <i class="ph ph-caret-up text-gray-300 group-hover:text-white transition-transform duration-300" id="command-caret"></i>
                 </button>
             </div>
 
-            <div class="p-4 border-t border-white/5 text-[8px] text-gray-400 flex items-center justify-between tracking-[0.2em] uppercase bg-black/60">
+            <div class="p-4 border-t border-white/5 text-[8px] text-gray-300 flex items-center justify-between tracking-[0.2em] uppercase bg-black/60 font-semibold">
                 <span id="db-status" class="flex items-center gap-2">
                     <div class="w-1 h-1 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.5)]" id="status-dot"></div> OFFLINE
                 </span>
@@ -277,22 +274,22 @@
         <main class="flex-1 glass-panel rounded-[1.5rem] md:rounded-[2rem] flex flex-col overflow-hidden h-full relative z-10 shadow-2xl">
             <header class="px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
                 <div class="flex items-center gap-3 sm:gap-5 flex-1 min-w-0">
-                    <button onclick="toggleSidebar()" class="md:hidden text-gray-400 flex-shrink-0"><i class="ph ph-list text-2xl"></i></button>
+                    <button onclick="toggleSidebar()" class="md:hidden text-gray-300 flex-shrink-0"><i class="ph ph-list text-2xl"></i></button>
                     <div class="flex flex-col gap-0.5 w-full max-w-xl truncate">
-                        <input type="text" id="doc-title" placeholder="Designation..." class="bg-transparent text-lg sm:text-xl md:text-2xl font-bold text-white outline-none w-full focus:text-blue-200 transition-all placeholder:opacity-30" value="Untitled Record" style="font-family: 'Cinzel', serif;">
-                        <div id="breadcrumb" class="text-[7px] sm:text-[8px] uppercase tracking-[0.2em] text-gray-400 font-light flex items-center gap-1.5 sm:gap-2 truncate">
+                        <input type="text" id="doc-title" placeholder="Designation..." class="bg-transparent text-lg sm:text-xl md:text-2xl font-bold text-white outline-none w-full focus:text-blue-200 transition-all placeholder:opacity-40" value="Untitled Record" style="font-family: 'Cinzel', serif;">
+                        <div id="breadcrumb" class="text-[7px] sm:text-[8px] uppercase tracking-[0.2em] text-gray-300 font-bold flex items-center gap-1.5 sm:gap-2 truncate">
                             Archive <i class="ph ph-caret-right text-[7px]"></i> <span id="current-loc-label" class="truncate">Root Sector</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 sm:gap-2.5">
-                    <button onclick="toggleFullscreen()" class="p-2 text-gray-400 hover:text-white transition-all rounded-lg hover:bg-white/5" title="Toggle Immersive View">
+                    <button onclick="toggleFullscreen()" class="p-2 text-gray-300 hover:text-white transition-all rounded-lg hover:bg-white/5" title="Toggle Immersive View">
                         <i id="fullscreen-icon" class="ph ph-corners-out text-lg"></i>
                     </button>
-                    <button onclick="toggleCurrentDocPin()" id="pin-btn" class="hidden p-2 text-gray-400 hover:text-yellow-400 transition-all rounded-lg hover:bg-white/5" title="Pin entry">
+                    <button onclick="toggleCurrentDocPin()" id="pin-btn" class="hidden p-2 text-gray-300 hover:text-yellow-400 transition-all rounded-lg hover:bg-white/5" title="Pin entry">
                         <i class="ph ph-push-pin text-lg pin-icon" id="header-pin-icon"></i>
                     </button>
-                    <button onclick="deleteCurrentDocument()" id="delete-btn" class="hidden p-2 text-red-500/30 hover:text-red-500 transition-all rounded-lg hover:bg-red-500/5" title="Purge entry">
+                    <button onclick="deleteCurrentDocument()" id="delete-btn" class="hidden p-2 text-red-500/50 hover:text-red-500 transition-all rounded-lg hover:bg-red-500/5" title="Purge entry">
                         <i class="ph ph-trash-simple text-lg"></i>
                     </button>
                     <button onclick="saveDocument()" class="ml-1 sm:ml-2 py-2.5 px-4 sm:py-3 sm:px-6 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl text-[8px] md:text-[9px] font-bold uppercase tracking-[0.2em] transition-all flex items-center gap-2">
@@ -313,10 +310,10 @@
     <div id="folder-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300 px-4">
         <div class="glass-panel p-6 sm:p-8 rounded-[2rem] max-w-sm w-full border border-white/10 scale-95 transition-all shadow-[0_0_80px_rgba(0,0,0,1)]" id="folder-modal-content">
             <h2 class="text-lg sm:text-xl font-bold tracking-[0.1em] mb-2 uppercase text-white" style="font-family: 'Cinzel', serif;">New Archival Sector</h2>
-            <p class="text-[8px] sm:text-[9px] text-gray-400 mb-6 tracking-[0.2em] uppercase font-light">Initialize a new containment unit.</p>
+            <p class="text-[8px] sm:text-[9px] text-gray-300 mb-6 tracking-[0.2em] uppercase font-bold">Initialize a new containment unit.</p>
             <input type="text" id="folder-name-input" placeholder="Designation..." class="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-white outline-none text-xs mb-6 focus:border-blue-500/50 transition-all">
             <div class="flex gap-3">
-                <button onclick="closeFolderModal()" class="flex-1 py-3 text-gray-400 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-white transition-colors">Cancel</button>
+                <button onclick="closeFolderModal()" class="flex-1 py-3 text-gray-300 text-[9px] font-bold uppercase tracking-[0.2em] hover:text-white transition-colors">Cancel</button>
                 <button onclick="submitNewFolder()" class="flex-1 py-3 bg-white/5 border border-white/20 text-white rounded-xl font-bold text-[9px] uppercase tracking-[0.2em] hover:bg-white/10 transition-colors">Establish</button>
             </div>
         </div>
@@ -326,24 +323,18 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyArmDPmEovOn8FAWggCukVDNW_jizbx4PY",
-            authDomain: "the-eternal-550ce.firebaseapp.com",
-            projectId: "the-eternal-550ce",
-            storageBucket: "the-eternal-550ce.firebasestorage.app",
-            messagingSenderId: "610399696800",
-            appId: "1:610399696800:web:39d2b9c70a4a7ae3aa96c5",
-            measurementId: "G-5FF7E755H8"
-        };
+        // Environment Variables
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'the-eternal-550ce';
+        const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        const APP_ID = 'the-eternal-550ce';
         let currentUser = null;
         let isLocalMode = false;
         let quill = null;
@@ -352,11 +343,11 @@
         let currentFolderId = null;
         let currentDocumentId = null;
 
-        // Fullscreen Logic
+        // Fullscreen
         window.toggleFullscreen = () => {
             const icon = document.getElementById('fullscreen-icon');
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
+                document.documentElement.requestFullscreen().catch(() => {});
                 icon.className = 'ph ph-corners-in text-lg';
             } else {
                 document.exitFullscreen();
@@ -364,7 +355,7 @@
             }
         };
 
-        // Sidebar Responsive Logic
+        // Sidebar
         window.toggleSidebar = () => {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebar-backdrop');
@@ -380,7 +371,7 @@
             }
         };
 
-        // Command Menu Logic
+        // Command Menu
         window.toggleCommandMenu = () => {
             const menu = document.getElementById('command-menu');
             const caret = document.getElementById('command-caret');
@@ -388,7 +379,6 @@
             caret.classList.toggle('rotate-180', isActive);
         };
 
-        // Close menus when clicking outside
         document.addEventListener('click', (e) => {
             const menu = document.getElementById('command-menu');
             const toggle = document.getElementById('command-toggle');
@@ -398,7 +388,7 @@
             }
         });
 
-        // Exposed global functions
+        // App logic
         window.enterWorkspace = () => {
             document.getElementById('homepage-overlay').style.opacity = '0';
             document.getElementById('homepage-overlay').style.transform = 'scale(1.02)';
@@ -406,7 +396,6 @@
                 document.getElementById('homepage-overlay').classList.add('hidden');
                 document.getElementById('workspace-overlay').classList.remove('opacity-0', 'pointer-events-none');
                 renderSidebar();
-                if (documents.length === 0) createNewDocument('root');
             }, 500);
         };
 
@@ -434,6 +423,7 @@
         };
         
         window.saveDocument = async () => {
+            if (!currentUser) return;
             const title = document.getElementById('doc-title').value.trim() || 'Untitled Record';
             const content = quill.root.innerHTML;
             const existing = documents.find(d => d.id === currentDocumentId);
@@ -451,53 +441,55 @@
             showToast("Archive Preserved", "success");
             document.getElementById('delete-btn').classList.remove('hidden');
             document.getElementById('pin-btn').classList.remove('hidden');
-            if (!isLocalMode) {
-                setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), id), data).catch(console.error);
-            }
+            
+            // Path following Rule 1
+            const docPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id);
+            await setDoc(docPath, data).catch(console.error);
         };
 
         window.deleteCurrentDocument = async () => {
-            if(!currentDocumentId) return;
+            if(!currentDocumentId || !currentUser) return;
             const id = currentDocumentId;
             documents = documents.filter(d => d.id !== id);
+            const docPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id);
+            await deleteDoc(docPath).catch(console.error);
             createNewDocument(currentFolderId);
             showToast("Entry Purged", "success");
-            if(!isLocalMode) {
-                deleteDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), id)).catch(console.error);
-            }
         };
 
         window.deleteDocumentById = async (e, id) => {
             e.stopPropagation();
-            if(!id) return;
+            if(!id || !currentUser) return;
             if(id === currentDocumentId) {
                 window.deleteCurrentDocument();
                 return;
             }
             documents = documents.filter(d => d.id !== id);
+            const docPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id);
+            await deleteDoc(docPath).catch(console.error);
             renderSidebar();
             showToast("Record Purged", "success");
-            if(!isLocalMode) {
-                deleteDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), id)).catch(console.error);
-            }
         };
 
         window.deleteFolder = async (e, id) => {
             e.stopPropagation();
-            if(!id) return;
-            documents.forEach(d => {
+            if(!id || !currentUser) return;
+            
+            // Re-map children to root
+            for(let d of documents) {
                 if(d.folderId === id) {
                     d.folderId = 'root';
-                    if(!isLocalMode) setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), d.id), d).catch(console.error);
+                    const docPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', d.id);
+                    await setDoc(docPath, d).catch(console.error);
                 }
-            });
+            }
+
             folders = folders.filter(f => f.id !== id);
             if(currentFolderId === id) currentFolderId = null;
+            const folderPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', id);
+            await deleteDoc(folderPath).catch(console.error);
             renderSidebar();
             showToast("Sector Purged", "success");
-            if(!isLocalMode) {
-                deleteDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_folders'), id)).catch(console.error);
-            }
         };
 
         window.openDocument = (id) => {
@@ -526,6 +518,7 @@
         };
 
         window.submitNewFolder = async () => {
+            if (!currentUser) return;
             const name = document.getElementById('folder-name-input').value.trim();
             if(!name) return;
             const newF = { id: generateId(), name, pinned: false, created_at: new Date().toISOString() };
@@ -533,9 +526,8 @@
             closeFolderModal();
             renderSidebar();
             showToast("Sector Established", "success");
-            if (!isLocalMode) {
-                setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_folders'), newF.id), newF).catch(console.error);
-            }
+            const folderPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', newF.id);
+            await setDoc(folderPath, newF).catch(console.error);
         };
 
         window.openFolder = (id) => {
@@ -546,23 +538,27 @@
             currentFolderId = null;
             renderSidebar();
         };
-        window.toggleFolderPin = (e, fid) => {
+        window.toggleFolderPin = async (e, fid) => {
             e.stopPropagation();
+            if (!currentUser) return;
             const f = folders.find(f => f.id === fid);
             if(f) {
                 f.pinned = !f.pinned;
                 renderSidebar();
-                if(!isLocalMode) setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_folders'), fid), f).catch(console.error);
+                const folderPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', fid);
+                await setDoc(folderPath, f).catch(console.error);
             }
         };
-        window.toggleDocPin = (e, did) => {
+        window.toggleDocPin = async (e, did) => {
             e.stopPropagation();
+            if (!currentUser) return;
             const d = documents.find(d => d.id === did);
             if(d) {
                 d.pinned = !d.pinned;
                 updateHeaderPinUI();
                 renderSidebar();
-                if(!isLocalMode) setDoc(doc(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'), did), d).catch(console.error);
+                const docPath = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', did);
+                await setDoc(docPath, d).catch(console.error);
             }
         };
         window.toggleCurrentDocPin = () => {
@@ -674,29 +670,53 @@
 
         async function initializeDatabase() {
             try {
-                await signInAnonymously(auth);
+                // Rule 3: Auth first
+                if (initialToken) {
+                    await signInWithCustomToken(auth, initialToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
                 onAuthStateChanged(auth, (user) => {
                     if (user) { 
-                        currentUser = user; isLocalMode = false; 
+                        currentUser = user; 
+                        isLocalMode = false; 
                         const dot = document.getElementById('status-dot');
-                        if (dot) { dot.style.backgroundColor = '#60a5fa'; dot.style.boxShadow = '0 0 8px #60a5fa'; }
+                        if (dot) { 
+                            dot.style.backgroundColor = '#60a5fa'; 
+                            dot.style.boxShadow = '0 0 8px #60a5fa'; 
+                        }
                         const statusText = document.getElementById('db-status');
                         if (statusText) statusText.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-blue-400 shadow-[0_0_6px_#60a5fa]" id="status-dot"></div> UPLINK ESTABLISHED';
                         loadAllData(); 
                     }
                 });
-            } catch (err) { isLocalMode = true; currentUser = { uid: 'local' }; renderSidebar(); }
+            } catch (err) { 
+                console.error("Auth failed:", err);
+                isLocalMode = true; 
+                renderSidebar(); 
+            }
         }
 
         async function loadAllData() {
-            if (isLocalMode) return;
+            if (!currentUser) return;
             try {
-                const dSnap = await getDocs(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_docs'));
+                // Documents path per Rule 1
+                const dSnap = await getDocs(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs'));
                 documents = []; dSnap.forEach(d => documents.push(d.data()));
-                const fSnap = await getDocs(collection(db, 'artifacts', APP_ID, 'users', currentUser.uid, 'space_folders'));
+                
+                // Folders path per Rule 1
+                const fSnap = await getDocs(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders'));
                 folders = []; fSnap.forEach(f => folders.push(f.data()));
+                
                 renderSidebar();
-            } catch (e) { console.error(e); }
+                
+                // If there's an active doc, load it back
+                if (currentDocumentId) openDocument(currentDocumentId);
+                else if (documents.length > 0) {
+                    // Optionally open latest?
+                }
+            } catch (e) { console.error("Data load failed:", e); }
         }
 
         function updateHeaderPinUI() {
@@ -720,10 +740,10 @@
                         <div onclick="openFolder('root')" class="sidebar-item p-3.5 rounded-xl border border-transparent hover:bg-white/[0.03] cursor-pointer flex justify-between items-center transition-all group ${currentFolderId === 'root' ? 'active bg-white/[0.04]' : ''}">
                             <div class="flex items-center gap-3">
                                 <i class="ph ph-archive text-gray-300 text-lg"></i>
-                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-200">Root Archive</span>
+                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-100">Root Archive</span>
                             </div>
                             <div class="flex items-center gap-3.5">
-                                <span class="text-[8px] text-gray-400 font-mono">${documents.filter(d => d.folderId === 'root').length}</span>
+                                <span class="text-[8px] text-gray-300 font-bold font-mono">${documents.filter(d => d.folderId === 'root').length}</span>
                                 <i class="ph ph-plus text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-125" title="New Entry in Root" onclick="event.stopPropagation(); createNewDocument('root')"></i>
                             </div>
                         </div>`;
@@ -732,13 +752,13 @@
                     html += `<div onclick="openFolder('${f.id}')" class="sidebar-item p-3.5 rounded-xl border border-transparent hover:bg-white/[0.03] cursor-pointer flex justify-between items-center transition-all group ${currentFolderId === f.id ? 'active bg-white/[0.04]' : ''}">
                             <div class="flex items-center gap-3">
                                 <i class="ph ph-folder text-blue-400/60 text-lg"></i>
-                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-100 truncate max-w-[110px]">${f.name}</span>
+                                <span class="text-[9px] font-bold tracking-[0.15em] uppercase text-gray-50 truncate max-w-[110px]">${f.name}</span>
                             </div>
                             <div class="flex items-center gap-2.5">
                                 <i class="ph ph-plus text-xs text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-125" onclick="event.stopPropagation(); createNewDocument('${f.id}')"></i>
                                 <i class="ph ph-trash text-xs text-red-500/60 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all" onclick="deleteFolder(event, '${f.id}')"></i>
-                                <span class="text-[8px] text-gray-400 font-mono">${count}</span>
-                                <i class="ph ph-push-pin ${f.pinned ? 'ph-fill pinned' : 'text-gray-400 hover:text-yellow-400'} transition-all" onclick="toggleFolderPin(event, '${f.id}')"></i>
+                                <span class="text-[8px] text-gray-300 font-bold font-mono">${count}</span>
+                                <i class="ph ph-push-pin ${f.pinned ? 'ph-fill pinned' : 'text-gray-300 hover:text-yellow-400'} transition-all" onclick="toggleFolderPin(event, '${f.id}')"></i>
                             </div>
                         </div>`;
                 });
@@ -746,11 +766,11 @@
             } else {
                 const folderName = currentFolderId === 'root' ? 'Root Archive' : activeFolder?.name;
                 html += `<div class="p-5 border-b border-white/5 bg-black/40">
-                        <button onclick="goBackToFolders()" class="text-gray-300 hover:text-white text-[8px] tracking-[0.25em] uppercase flex items-center gap-2.5 transition-colors mb-5">
+                        <button onclick="goBackToFolders()" class="text-gray-200 hover:text-white text-[8px] tracking-[0.25em] uppercase flex items-center gap-2.5 transition-colors mb-5 font-bold">
                             <i class="ph ph-arrow-left text-sm"></i> Back to Sectors
                         </button>
                         <div class="flex flex-col gap-1 mb-5">
-                            <h3 class="text-[9px] text-gray-200 uppercase tracking-[0.2em] font-medium flex items-center gap-2.5">
+                            <h3 class="text-[9px] text-white uppercase tracking-[0.2em] font-bold flex items-center gap-2.5">
                                 <i class="ph ph-folder-open text-blue-400 text-base"></i> ${folderName}
                             </h3>
                         </div>
@@ -760,14 +780,14 @@
                     </div>
                     <div class="flex-1 overflow-y-auto p-3.5 space-y-1.5">`;
                 const folderDocs = documents.filter(d => d.folderId === currentFolderId).sort(sorter);
-                if(folderDocs.length === 0) html += `<div class="p-8 text-center text-gray-400 text-[8px] uppercase tracking-[0.25em] font-light">Void ... No entries</div>`;
+                if(folderDocs.length === 0) html += `<div class="p-8 text-center text-gray-300 text-[8px] uppercase tracking-[0.25em] font-bold">Void ... No entries</div>`;
                 folderDocs.forEach(d => {
                     const isActive = d.id === currentDocumentId;
                     html += `<div onclick="openDocument('${d.id}')" class="sidebar-item p-3.5 rounded-xl border ${isActive ? 'bg-blue-600/10 border-blue-500/20' : 'border-transparent hover:bg-white/[0.03]'} cursor-pointer group relative pr-14 transition-all ${isActive ? 'active' : ''}">
-                            <span class="text-[9px] font-bold uppercase tracking-[0.15em] text-gray-100 truncate block">${d.title || 'Untitled'}</span>
+                            <span class="text-[9px] font-bold uppercase tracking-[0.15em] text-white truncate block">${d.title || 'Untitled'}</span>
                             <div class="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                                 <i class="ph ph-trash text-xs text-red-500/60 hover:text-red-500" onclick="deleteDocumentById(event, '${d.id}')"></i>
-                                <i class="ph ph-push-pin ${d.pinned ? 'ph-fill pinned' : 'text-gray-400 hover:text-yellow-400'} transition-all" onclick="toggleDocPin(event, '${d.id}')"></i>
+                                <i class="ph ph-push-pin ${d.pinned ? 'ph-fill pinned' : 'text-gray-300 hover:text-yellow-400'} transition-all" onclick="toggleDocPin(event, '${d.id}')"></i>
                             </div>
                         </div>`;
                 });
@@ -781,7 +801,7 @@
             if (!container) return;
             const toast = document.createElement('div');
             toast.className = `glass-panel ${t === 'success' ? 'border-blue-500/20' : 'border-red-900/20'} border rounded-2xl p-4 flex items-center gap-3 toast-enter-active pointer-events-auto shadow-2xl`;
-            toast.innerHTML = `<i class="ph ph-sparkle text-blue-400 text-lg"></i><p class="text-[9px] font-bold uppercase tracking-[0.15em] text-gray-200">${m}</p>`;
+            toast.innerHTML = `<i class="ph ph-sparkle text-blue-400 text-lg"></i><p class="text-[9px] font-bold uppercase tracking-[0.15em] text-white">${m}</p>`;
             container.appendChild(toast);
             setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(12px)'; setTimeout(() => toast.remove(), 400); }, 3000);
         }
