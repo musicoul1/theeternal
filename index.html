@@ -18,10 +18,10 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Expanded for more variety -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@200;300;400;500&family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     
     <!-- Quill.js -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -62,6 +62,16 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
 
+        /* Font Mapping for Quill */
+        .ql-font-inter { font-family: 'Inter', sans-serif; }
+        .ql-font-cinzel { font-family: 'Cinzel', serif; }
+        .ql-font-garamond { font-family: 'EB Garamond', serif; }
+        .ql-font-playfair { font-family: 'Playfair Display', serif; }
+        .ql-font-jetbrains { font-family: 'JetBrains Mono', monospace; }
+        .ql-font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .ql-font-lora { font-family: 'Lora', serif; }
+
+        /* Toolbar Styling Refinement */
         .ql-toolbar.ql-snow {
             border: none;
             background: rgba(15, 15, 20, 0.5);
@@ -89,7 +99,6 @@
         .ql-editor { 
             padding: 1.5rem; 
             line-height: 1.7;
-            font-family: 'Inter', sans-serif;
         }
         @media (min-width: 768px) {
             .ql-editor { padding: 2rem 2.5rem; }
@@ -176,16 +185,6 @@
             background: rgba(255, 255, 255, 0.05);
             padding-left: 1.25rem;
         }
-
-        /* Responsive Formatting Menu */
-        #toolbar-container {
-            max-width: calc(100vw - 2rem);
-            max-height: 40vh;
-            overflow-y: auto;
-        }
-        @media (min-width: 640px) {
-            #toolbar-container { max-width: 450px; max-height: none; overflow-y: visible; }
-        }
     </style>
 </head>
 <body class="antialiased relative overflow-hidden bg-black text-gray-200">
@@ -242,12 +241,11 @@
 
             <!-- Main Content Area -->
             <div id="sidebar-content" class="flex-1 overflow-y-auto relative">
-                <!-- Navigation UI will be rendered here -->
+                <!-- Navigation UI -->
             </div>
 
             <!-- Bottom Command Hub -->
             <div class="p-4 border-t border-white/5 relative bg-black/40">
-                <!-- Drop-up Menu -->
                 <div id="command-menu" class="absolute left-4 right-4 bottom-20 glass-panel rounded-2xl overflow-hidden border border-white/10 z-30 shadow-2xl">
                     <button onclick="createNewDocument('root')" class="command-item w-full p-4 flex items-center gap-4 text-left border-b border-white/5">
                         <i class="ph ph-plus-circle text-blue-400 text-lg"></i>
@@ -265,7 +263,6 @@
                     </button>
                 </div>
 
-                <!-- Main Toggle Button -->
                 <button id="command-toggle" onclick="toggleCommandMenu()" class="premium-btn w-full py-3.5 px-4 text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.3em] transition-all flex items-center justify-between group">
                     <span class="flex items-center gap-3">
                         <i class="ph ph-command text-base text-blue-400"></i>
@@ -300,7 +297,6 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 sm:gap-2.5">
-                    <!-- Fullscreen Toggle Button -->
                     <button onclick="toggleFullscreen()" class="p-2 text-gray-500 hover:text-white transition-all rounded-lg hover:bg-white/5" title="Toggle Immersive View">
                         <i id="fullscreen-icon" class="ph ph-corners-out text-lg"></i>
                     </button>
@@ -424,7 +420,6 @@
                 document.getElementById('homepage-overlay').classList.add('hidden');
                 document.getElementById('workspace-overlay').classList.remove('opacity-0', 'pointer-events-none');
                 renderSidebar();
-                // If no documents exist, start a fresh session
                 if (documents.length === 0) createNewDocument('root');
             }, 500);
         };
@@ -628,11 +623,11 @@
                 Quill.register('modules/blotFormatter', blotFormatterModule);
 
                 const Font = Quill.import('formats/font');
-                Font.whitelist = ['inter', 'cinzel', 'courier'];
+                Font.whitelist = ['inter', 'cinzel', 'courier', 'garamond', 'playfair', 'jetbrains', 'montserrat', 'lora'];
                 Quill.register(Font, true);
 
                 const toolbarOptions = [
-                    [{ 'font': ['inter', 'cinzel', 'courier'] }, { 'size': ['small', false, 'large', 'huge'] }],
+                    [{ 'font': Font.whitelist }, { 'size': ['small', false, 'large', 'huge'] }],
                     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                     ['bold', 'italic', 'underline', 'strike'],
                     [{ 'color': [] }, { 'background': [] }],
