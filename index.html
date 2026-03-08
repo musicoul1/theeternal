@@ -129,6 +129,650 @@
             width: 6px; height: 6px; border-radius: 50%; background-color: #ef4444; transition: background-color 0.5s ease;
         }
         .sync-active { background-color: #22c55e; box-shadow: 0 0 10px #22c55e; }
+
+        .loading-pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+    </style>
+</head>
+<body class="antialiased relative">
+
+    <div class="vignette"></div>
+    <div id="canvas-container" class="fixed inset-0 z-0 pointer-events-none"></div>
+
+    <!-- HOME SCREEN -->
+    <div id="homepage-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[1px]">
+        <div class="absolute top-8 right-8">
+            <button onclick="toggleFullscreen()" class="text-white/20 hover:text-white/60 transition-all p-2">
+                <i id="fullscreen-icon-home" class="ph ph-corners-out text-2xl"></i>
+            </button>
+        </div>
+
+        <div class="flex flex-col items-center text-center px-6 max-w-2xl">
+            <i class="ph ph-infinity text-6xl text-white mb-10 drop-shadow-[0_0_30px_rgba(255,255,255,0.3)] opacity-80"></i>
+            <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold text-white mb-6 logo-glow uppercase" style="font-family: 'Cinzel', serif;">The Eternal</h1>
+            <p class="text-slate-400 font-light tracking-[0.8em] mb-16 uppercase text-[10px] sm:text-xs opacity-80">Infinite Archival Core</p>
+            
+            <button onclick="enterWorkspace()" class="premium-btn group py-5 px-14 text-white rounded-full font-light transition-all backdrop-blur-md uppercase tracking-[0.5em] text-[10px] relative overflow-hidden">
+                <span class="relative z-10 flex items-center gap-5">Initialize Workspace <i class="ph ph-arrow-right text-xs"></i></span>
+                <div class="shimmer absolute inset-0"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- WORKSPACE SCREEN -->
+    <div id="workspace-overlay" class="workspace-transition absolute inset-0 z-10 flex flex-col md:flex-row w-full h-full p-2 sm:p-4 md:p-6 gap-3 sm:gap-4 md:gap-6 bg-transparent opacity-0 pointer-events-none transform scale-100 hidden">
+        
+        <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/90 backdrop-blur-xl z-30 opacity-0 pointer-events-none transition-opacity duration-500 md:hidden"></div>
+
+        <aside id="sidebar" class="glass-panel fixed inset-y-3 left-3 w-[calc(100%-1.5rem)] sm:w-80 md:relative md:inset-0 z-40 flex flex-col rounded-[2rem] overflow-hidden transition-transform duration-700 -translate-x-[110%] md:translate-x-0">
+            <div class="p-8 border-b border-white/5 flex flex-col gap-3 relative">
+                <button onclick="toggleSidebar()" class="md:hidden absolute top-8 right-8 text-slate-500 hover:text-white transition-colors">
+                    <i class="ph ph-x text-2xl"></i>
+                </button>
+                <div class="flex items-center gap-4 cursor-pointer group" onclick="exitWorkspace()">
+                    <i class="ph ph-infinity text-xl text-slate-500 group-hover:text-white transition-colors"></i>
+                    <h1 class="text-base font-bold tracking-[0.3em] text-white/90 uppercase" style="font-family: 'Cinzel', serif;">Eternal</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div id="sync-dot" class="sync-indicator"></div>
+                    <span class="text-[8px] tracking-[0.4em] text-slate-600 uppercase font-bold" id="db-status">Uplink Offline</span>
+                </div>
+            </div>
+
+            <div id="sidebar-content" class="flex-1 overflow-y-auto px-6 py-8 pb-32 space-y-2 custom-scroll"></div>
+
+            <div class="sidebar-dock border-t border-white/5">
+                <div id="command-menu" class="absolute left-5 right-5 bottom-24 glass-panel rounded-[1.5rem] overflow-hidden z-50">
+                    <button onclick="window.createNewDocument(currentFolderId || 'root')" class="w-full p-6 flex items-center gap-5 text-left hover:bg-white/[0.04] transition-all group">
+                        <i class="ph ph-file-plus text-slate-500 group-hover:text-white text-xl"></i>
+                        <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60 group-hover:text-white">New Record</span>
+                    </button>
+                    <button onclick="window.openFolderModal()" class="w-full p-6 flex items-center gap-5 text-left hover:bg-white/[0.04] transition-all group">
+                        <i class="ph ph-folder-notch-plus text-slate-500 group-hover:text-white text-xl"></i>
+                        <span class="text-[9px] font-bold uppercase tracking-[0.2em] text-white/60 group-hover:text-white">Establish Sector</span>
+                    </button>
+                </div>
+                <button id="command-toggle" onclick="toggleCommandMenu()" class="premium-btn w-full py-4 px-6 text-white/50 hover:text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.4em] transition-all flex items-center justify-between group">
+                    <span class="flex items-center gap-4"><i class="ph ph-command text-base opacity-40"></i> Initialize</span>
+                    <i class="ph ph-caret-up group-hover:translate-y-[-2px] transition-transform text-xs" id="command-caret"></i>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 glass-panel rounded-[2rem] flex flex-col overflow-hidden h-full relative z-10">
+            <header class="px-6 py-5 sm:px-12 sm:py-8 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+                <div class="flex items-center gap-4 sm:gap-8 flex-1 min-w-0">
+                    <button onclick="toggleSidebar()" class="md:hidden text-slate-500 p-2">
+                        <i class="ph ph-list text-3xl"></i>
+                    </button>
+                    <div class="flex flex-col gap-1 w-full max-xl truncate">
+                        <input type="text" id="doc-title" placeholder="Designation..." class="bg-transparent text-lg sm:text-2xl font-light text-white outline-none w-full focus:text-slate-200 placeholder:opacity-20 truncate" value="Record Null" style="font-family: 'Cinzel', serif;">
+                        <div class="text-[7px] sm:text-[8px] uppercase tracking-[0.5em] text-slate-600 font-bold flex items-center gap-2">
+                            ARCHIVE <i class="ph ph-caret-right text-[6px] opacity-40"></i> <span id="current-loc-label" class="text-slate-400 truncate">CORE</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <button onclick="toggleFullscreen()" class="p-3 text-slate-600 hover:text-white transition-all hidden sm:block" title="Immersive Mode">
+                        <i id="fullscreen-icon" class="ph ph-corners-out text-xl"></i>
+                    </button>
+                    <button onclick="window.deleteCurrentDocument()" id="delete-btn" class="hidden p-3 text-red-900/40 hover:text-red-500 transition-all" title="Purge Record">
+                        <i class="ph ph-trash-simple text-xl"></i>
+                    </button>
+                    <button onclick="window.saveDocument()" id="save-btn" class="ml-2 py-3 px-6 sm:py-4 sm:px-12 premium-btn text-white/70 hover:text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.4em] transition-all flex items-center gap-4">
+                        <i class="ph ph-shield-check text-lg opacity-60" id="save-icon"></i> <span class="hidden xs:inline">Preserve</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto custom-scroll bg-black/[0.02]">
+                <div class="max-w-6xl mx-auto min-h-full">
+                    <div id="editor"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="folder-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-3xl opacity-0 pointer-events-none transition-all duration-700 p-6">
+        <div class="glass-panel p-10 sm:p-14 rounded-[2.5rem] max-w-md w-full border-white/10 scale-95 transition-all shadow-3xl" id="folder-modal-content">
+            <h2 class="text-xl sm:text-2xl font-light tracking-[0.3em] mb-4 uppercase text-white/90" style="font-family: 'Cinzel', serif;">Establish Sector</h2>
+            <p class="text-[9px] text-slate-500 mb-10 tracking-[0.4em] uppercase font-bold">Categorization containment initialization.</p>
+            <input type="text" id="folder-name-input" placeholder="Sector Key..." class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white outline-none text-sm mb-12 focus:border-white/30 transition-all font-light tracking-wider">
+            <div class="flex gap-6">
+                <button onclick="window.closeFolderModal()" class="flex-1 py-4 text-slate-600 text-[10px] font-bold uppercase tracking-[0.4em] hover:text-white transition-colors">Abort</button>
+                <button onclick="window.submitNewFolder()" class="flex-1 py-4 premium-btn text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.4em]">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-8 right-8 sm:bottom-12 sm:right-12 z-[100] flex flex-col gap-4 pointer-events-none"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyArmDPmEovOn8FAWggCukVDNW_jizbx4PY",
+            authDomain: "the-eternal-550ce.firebaseapp.com",
+            projectId: "the-eternal-550ce",
+            storageBucket: "the-eternal-550ce.firebasestorage.app",
+            messagingSenderId: "610399696800",
+            appId: "1:610399696800:web:39d2b9c70a4a7ae3aa96c5",
+            measurementId: "G-5FF7E755H8"
+        };
+
+        // Environment Variables Handling
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'the-eternal-550ce';
+        const initialToken = (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) ? __initial_auth_token : null;
+
+        let app, auth, db, currentUser = null;
+        let quill = null, folders = [], documents = [], currentFolderId = null, currentDocumentId = null;
+        let snapshots = [];
+
+        // Helper for ID generation (Fall back if crypto.randomUUID is restricted)
+        const generateId = () => {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+            return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        };
+
+        // UI Logic
+        window.enterWorkspace = () => {
+            const h = document.getElementById('homepage-overlay'), w = document.getElementById('workspace-overlay');
+            h.style.opacity = '0'; h.style.transform = 'scale(1.02)';
+            w.classList.remove('hidden'); 
+            setTimeout(() => {
+                h.classList.add('hidden');
+                w.classList.remove('opacity-0', 'pointer-events-none');
+                w.classList.add('opacity-100', 'pointer-events-auto');
+                window.renderSidebar();
+            }, 600);
+        };
+
+        window.exitWorkspace = () => {
+            const h = document.getElementById('homepage-overlay'), w = document.getElementById('workspace-overlay');
+            w.classList.add('opacity-0', 'pointer-events-none');
+            h.classList.remove('hidden');
+            setTimeout(() => { h.style.opacity = '1'; h.style.transform = 'scale(1)'; }, 100);
+            setTimeout(() => { w.classList.add('hidden'); }, 700);
+        };
+
+        window.toggleSidebar = () => {
+            const s = document.getElementById('sidebar'), b = document.getElementById('sidebar-backdrop');
+            const hidden = s.classList.contains('-translate-x-[110%]');
+            if(hidden) { s.classList.remove('-translate-x-[110%]'); b.classList.add('opacity-100', 'pointer-events-auto'); }
+            else { s.classList.add('-translate-x-[110%]'); b.classList.remove('opacity-100', 'pointer-events-auto'); }
+        };
+
+        window.toggleCommandMenu = () => {
+            const m = document.getElementById('command-menu'), c = document.getElementById('command-caret');
+            const act = m.classList.toggle('active');
+            c.classList.toggle('rotate-180', act);
+        };
+
+        // DATABASE OPERATIONS
+        window.saveDocument = async () => {
+            if (!currentUser) { showToast("Uplink required to preserve data"); return; }
+            
+            const saveBtn = document.getElementById('save-btn');
+            const saveIcon = document.getElementById('save-icon');
+            
+            // Visual feedback
+            saveIcon.classList.add('loading-pulse');
+            saveBtn.style.opacity = '0.5';
+            saveBtn.disabled = true;
+
+            const titleInput = document.getElementById('doc-title');
+            const title = titleInput ? titleInput.value.trim() : 'Record Null';
+            const content = quill ? quill.root.innerHTML : "";
+            const id = currentDocumentId || generateId();
+            
+            const data = { 
+                id, title, content, 
+                folderId: currentFolderId || 'root', 
+                updated_at: new Date().toISOString() 
+            };
+            
+            try {
+                // RULE 1: Strict Paths
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id);
+                await setDoc(docRef, data);
+                currentDocumentId = id;
+                showToast("Record Preserved");
+                document.getElementById('delete-btn').classList.remove('hidden');
+            } catch (e) {
+                console.error("Save Error:", e);
+                showToast("Preservation Failed: " + (e.message || "Uplink Error"));
+            } finally {
+                saveIcon.classList.remove('loading-pulse');
+                saveBtn.style.opacity = '1';
+                saveBtn.disabled = false;
+            }
+        };
+
+        window.deleteCurrentDocument = async () => {
+            if(!currentDocumentId || !currentUser) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', currentDocumentId));
+                window.createNewDocument(currentFolderId);
+                showToast("Record Purged");
+            } catch (e) { showToast("Purge Failed"); }
+        };
+
+        window.deleteDocumentById = async (e, id) => {
+            e.stopPropagation();
+            if(!currentUser) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
+                if(id === currentDocumentId) window.createNewDocument(currentFolderId);
+                showToast("Purged");
+            } catch (e) { showToast("Purge Failed"); }
+        };
+
+        window.submitNewFolder = async () => {
+            const nameInput = document.getElementById('folder-name-input');
+            const name = nameInput ? nameInput.value.trim() : "";
+            if(!name || !currentUser) return;
+            const f = { id: generateId(), name, created_at: new Date().toISOString() };
+            try {
+                await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', f.id), f);
+                window.closeFolderModal();
+                showToast("Sector Established");
+                if (nameInput) nameInput.value = "";
+            } catch (e) { showToast("Establishment Failed"); }
+        };
+
+        window.deleteFolder = async (e, id) => {
+            e.stopPropagation();
+            if(!currentUser) return;
+            try {
+                const orphans = documents.filter(d => d.folderId === id);
+                for (const d of orphans) {
+                    await setDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', d.id), { ...d, folderId: 'root' });
+                }
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', id));
+                if(currentFolderId === id) currentFolderId = null;
+                showToast("Sector Decommissioned");
+            } catch (e) { showToast("Decommission Failed"); }
+        };
+
+        // INITIALIZATION & SYNCING
+        async function initDB() {
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                const performSignIn = async () => {
+                    if (initialToken) {
+                        return await signInWithCustomToken(auth, initialToken);
+                    } else {
+                        return await signInAnonymously(auth);
+                    }
+                };
+
+                await performSignIn();
+
+                onAuthStateChanged(auth, user => {
+                    if (user) { 
+                        currentUser = user; 
+                        document.getElementById('sync-dot').classList.add('sync-active');
+                        document.getElementById('db-status').innerText = 'Uplink Synchronized';
+                        setupSync();
+                    } else {
+                        currentUser = null;
+                        document.getElementById('sync-dot').classList.remove('sync-active');
+                        document.getElementById('db-status').innerText = 'Uplink Lost';
+                    }
+                });
+            } catch (e) { 
+                console.error("CRITICAL INITIALIZATION ERROR", e);
+                document.getElementById('db-status').innerText = "Terminal Error - Project Setup Null";
+            }
+        }
+
+        function setupSync() {
+            if (!db || !currentUser) return;
+            
+            snapshots.forEach(unsub => unsub());
+            snapshots = [];
+
+            const docsPath = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs');
+            const unsubDocs = onSnapshot(docsPath, (snap) => {
+                const newDocs = [];
+                snap.forEach(d => newDocs.push(d.data()));
+                documents = newDocs;
+                
+                if (currentDocumentId) {
+                    const active = documents.find(d => d.id === currentDocumentId);
+                    if (active && quill && !quill.hasFocus()) {
+                        if (quill.root.innerHTML !== active.content) quill.root.innerHTML = active.content;
+                        document.getElementById('doc-title').value = active.title;
+                    }
+                }
+                window.renderSidebar();
+            }, (err) => {
+                console.error("Document Sync Interrupted", err);
+            });
+            snapshots.push(unsubDocs);
+
+            const foldersPath = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders');
+            const unsubFolders = onSnapshot(foldersPath, (snap) => {
+                const newFolders = [];
+                snap.forEach(f => newFolders.push(f.data()));
+                folders = newFolders;
+                window.renderSidebar();
+            }, (err) => console.error("Folder Sync Interrupted", err));
+            snapshots.push(unsubFolders);
+        }
+
+        // UI HELPERS
+        window.createNewDocument = (fid = 'root') => {
+            currentDocumentId = null; 
+            currentFolderId = fid;
+            const titleInput = document.getElementById('doc-title');
+            if (titleInput) titleInput.value = '';
+            if (quill) quill.root.innerHTML = '';
+            document.getElementById('delete-btn').classList.add('hidden');
+            window.renderSidebar();
+            if(window.innerWidth < 768) window.toggleSidebar();
+            document.getElementById('command-menu').classList.remove('active');
+        };
+
+        window.openDocument = (id) => {
+            const d = documents.find(d => d.id === id);
+            if(!d) return;
+            currentDocumentId = d.id; 
+            currentFolderId = d.folderId;
+            const titleInput = document.getElementById('doc-title');
+            if (titleInput) titleInput.value = d.title;
+            if (quill && quill.root.innerHTML !== d.content) {
+                quill.root.innerHTML = d.content;
+            }
+            document.getElementById('delete-btn').classList.remove('hidden');
+            window.renderSidebar();
+            if(window.innerWidth < 768) window.toggleSidebar();
+        };
+
+        window.renderSidebar = () => {
+            const cont = document.getElementById('sidebar-content');
+            if(!cont) return;
+            let html = '';
+            const bread = document.getElementById('current-loc-label');
+            
+            if (currentFolderId === null) {
+                if (bread) bread.innerText = 'CORE';
+                html += `<div onclick="window.openFolder('root')" class="sidebar-item p-5 rounded-2xl cursor-pointer flex justify-between items-center group transition-all hover:bg-white/[0.04]">
+                    <div class="flex items-center gap-4"><i class="ph ph-archive text-slate-500 text-lg"></i><span class="text-[10px] font-bold uppercase tracking-widest text-slate-300">Root Archive</span></div>
+                    <span class="text-[9px] text-slate-700 font-black opacity-60">${documents.filter(d => d.folderId === 'root').length}</span>
+                </div>`;
+                folders.sort((a,b) => a.name.localeCompare(b.name)).forEach(f => {
+                    html += `<div onclick="window.openFolder('${f.id}')" class="sidebar-item p-5 rounded-2xl cursor-pointer flex justify-between items-center group transition-all hover:bg-white/[0.04]">
+                        <div class="flex items-center gap-4"><i class="ph ph-folder text-slate-600 text-lg"></i><span class="text-[10px] font-bold uppercase tracking-widest text-slate-300 truncate max-w-[120px]">${f.name}</span></div>
+                        <div class="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all">
+                            <i class="ph ph-trash text-slate-700 hover:text-red-900 p-1" onclick="window.deleteFolder(event, '${f.id}')"></i>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                const f = folders.find(fold => fold.id === currentFolderId);
+                if (bread) bread.innerText = currentFolderId === 'root' ? 'ROOT' : f?.name.toUpperCase();
+                html += `<button onclick="window.goBackToFolders()" class="text-slate-600 hover:text-white text-[9px] font-black uppercase flex items-center gap-3 mb-12 transition-all px-2 tracking-widest"><i class="ph ph-arrow-left text-xs"></i> Return</button>`;
+                const filtered = documents.filter(d => d.folderId === currentFolderId);
+                if(filtered.length === 0) {
+                    html += `<div class="text-[9px] text-slate-700 text-center py-16 uppercase tracking-[0.4em]">Archive Null</div>`;
+                }
+                filtered.sort((a,b) => b.updated_at?.localeCompare(a.updated_at)).forEach(d => {
+                    const active = d.id === currentDocumentId;
+                    html += `<div onclick="window.openDocument('${d.id}')" class="sidebar-item p-5 rounded-2xl cursor-pointer flex justify-between items-center group transition-all ${active ? 'active' : 'hover:bg-white/[0.03]'}">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-300 truncate pr-4">${d.title}</span>
+                        <i class="ph ph-trash text-slate-800 hover:text-red-900 opacity-0 group-hover:opacity-100 transition-all p-1" onclick="window.deleteDocumentById(event, '${d.id}')"></i>
+                    </div>`;
+                });
+            }
+            cont.innerHTML = html;
+        };
+
+        window.openFolder = (id) => { currentFolderId = id; window.renderSidebar(); };
+        window.goBackToFolders = () => { currentFolderId = null; window.renderSidebar(); };
+
+        function showToast(m) {
+            const cont = document.getElementById('toast-container');
+            const t = document.createElement('div');
+            t.className = `glass-panel border-white/10 p-6 rounded-2xl flex items-center gap-5 shadow-3xl pointer-events-auto transition-all duration-700 opacity-0 transform translate-y-4`;
+            t.innerHTML = `<i class="ph ph-circle-wavy-check text-slate-400"></i><p class="text-[9px] font-bold uppercase text-slate-200 tracking-[0.4em]">${m}</p>`;
+            cont.appendChild(t);
+            setTimeout(() => t.classList.remove('opacity-0', 'translate-y-4'), 50);
+            setTimeout(() => { t.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => t.remove(), 700); }, 3500);
+        }
+
+        // ASSETS & CANVAS
+        function initStars() {
+            const cont = document.getElementById('canvas-container');
+            if (!cont) return;
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 5000);
+            camera.position.z = 1000;
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            cont.appendChild(renderer.domElement);
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 32; canvas.height = 32;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+            gradient.addColorStop(0, 'rgba(255,255,255,1)');
+            gradient.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = gradient; ctx.fillRect(0, 0, 32, 32);
+            const starTexture = new THREE.CanvasTexture(canvas);
+
+            const spectral = [0x9bb0ff, 0xffffff, 0xffddb4, 0xffbd6f];
+            const starCount = window.innerWidth < 768 ? 4000 : 8000;
+            const starLayers = [];
+
+            const createLayer = (count, zRange, size, speed) => {
+                const geo = new THREE.BufferGeometry();
+                const pos = new Float32Array(count * 3);
+                const col = new Float32Array(count * 3);
+                for(let i=0; i < count; i++) {
+                    pos[i*3] = (Math.random() - 0.5) * 5000;
+                    pos[i*3+1] = (Math.random() - 0.5) * 5000;
+                    pos[i*3+2] = (Math.random() - 0.5) * zRange;
+                    const c = new THREE.Color(spectral[Math.floor(Math.random() * spectral.length)]);
+                    col[i*3] = c.r; col[i*3+1] = c.g; col[i*3+2] = c.b;
+                }
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+                const mat = new THREE.PointsMaterial({ size, map: starTexture, vertexColors: true, transparent: true, opacity: 0.9, depthWrite: false, blending: THREE.AdditiveBlending });
+                const points = new THREE.Points(geo, mat);
+                scene.add(points);
+                return { points, speed, count };
+            };
+
+            starLayers.push(createLayer(starCount/2, 4000, 2.0, 0.4));
+            starLayers.push(createLayer(starCount/3, 3000, 3.8, 0.9));
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                starLayers.forEach(layer => {
+                    const positions = layer.points.geometry.attributes.position.array;
+                    for (let i = 0; i < layer.count; i++) {
+                        const zIdx = i * 3 + 2;
+                        positions[zIdx] += layer.speed;
+                        if (positions[zIdx] > 1000) positions[zIdx] = -3000;
+                    }
+                    layer.points.geometry.attributes.position.needsUpdate = true;
+                });
+                renderer.render(scene, camera);
+            };
+            animate();
+            window.addEventListener('resize', () => { 
+                renderer.setSize(window.innerWidth, window.innerHeight); 
+                camera.aspect = window.innerWidth / window.innerHeight; 
+                camera.updateProjectionMatrix(); 
+            });
+        }
+
+        function initEditor() {
+            if (typeof Quill === 'undefined') return;
+            try {
+                if (window.QuillBlotFormatter) {
+                    const b = QuillBlotFormatter.default || QuillBlotFormatter;
+                    Quill.register('modules/blotFormatter', b);
+                }
+                const Font = Quill.import('formats/font');
+                Font.whitelist = ['inter', 'cinzel', 'garamond', 'playfair', 'jetbrains'];
+                Quill.register(Font, true);
+                
+                quill = new Quill('#editor', {
+                    theme: 'snow',
+                    placeholder: 'Preserve archival data...',
+                    modules: { 
+                        toolbar: {
+                            container: [
+                                [{ 'font': Font.whitelist }],
+                                [{ 'size': ['small', false, 'large', 'huge'] }],
+                                ['bold', 'italic', 'underline'],
+                                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                [{ 'align': [] }],
+                                ['link', 'image', 'video'],
+                                ['blockquote', 'formula'],
+                                ['clean']
+                            ]
+                        },
+                        blotFormatter: {} 
+                    }
+                });
+                quill.root.classList.add('ql-font-inter');
+            } catch (err) { console.error(err); }
+        }
+
+        window.toggleFullscreen = () => {
+            const icons = [document.getElementById('fullscreen-icon'), document.getElementById('fullscreen-icon-home')];
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+                icons.forEach(i => { if(i) i.className = 'ph ph-corners-in text-2xl'; });
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                icons.forEach(i => { if(i) i.className = 'ph ph-corners-out text-2xl'; });
+            }
+        };
+
+        window.openFolderModal = () => {
+            document.getElementById('folder-modal').classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('command-menu').classList.remove('active');
+        };
+
+        window.closeFolderModal = () => {
+            document.getElementById('folder-modal').classList.add('opacity-0', 'pointer-events-none');
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initStars();
+            initEditor();
+            initDB();
+        });
+    </script>
+</body>
+</html>
+        body { 
+            margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; 
+            background-color: var(--space-black); color: #f1f5f9; font-family: 'Inter', sans-serif; 
+            display: flex; flex-direction: column; 
+        }
+        
+        .vignette {
+            position: fixed; inset: 0; pointer-events: none;
+            background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.8) 100%);
+            z-index: 5;
+        }
+
+        .glass-panel {
+            background: rgba(8, 8, 10, 0.8);
+            backdrop-filter: blur(50px) saturate(180%);
+            -webkit-backdrop-filter: blur(50px) saturate(180%);
+            border: 0.5px solid var(--slate-border);
+            box-shadow: 0 10px 60px -15px rgba(0, 0, 0, 1);
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 2px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+
+        /* Font Engine Mapping */
+        .ql-font-inter { font-family: 'Inter', sans-serif; }
+        .ql-font-cinzel { font-family: 'Cinzel', serif; }
+        .ql-font-garamond { font-family: 'EB Garamond', serif; }
+        .ql-font-playfair { font-family: 'Playfair Display', serif; }
+        .ql-font-jetbrains { font-family: 'JetBrains Mono', monospace; }
+
+        .ql-toolbar.ql-snow { 
+            border: none; 
+            background: rgba(10, 10, 12, 0.98); 
+            border-bottom: 0.5px solid var(--slate-border); 
+            padding: 10px; 
+            display: flex; 
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2px; 
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        @media (min-width: 768px) { .ql-toolbar.ql-snow { justify-content: flex-start; padding: 15px 30px; } }
+
+        .ql-container.ql-snow { border: none !important; color: #f8fafc; font-size: 0.95rem; }
+        .ql-editor { padding: 2rem 1.5rem; line-height: 2; font-weight: 300; letter-spacing: 0.02em; }
+        @media (min-width: 768px) { .ql-editor { padding: 5rem 12%; line-height: 2.2; } }
+
+        .ql-snow .ql-stroke { stroke: #64748b; stroke-width: 1.5px; }
+        .ql-snow .ql-fill { fill: #64748b; }
+        .ql-snow .ql-picker { color: #64748b; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+        .ql-snow .ql-picker-options { background-color: #08080a !important; border: 0.5px solid var(--slate-border) !important; border-radius: 12px; padding: 8px !important; }
+
+        .logo-glow { text-shadow: 0 0 40px rgba(255, 255, 255, 0.25); letter-spacing: 0.5em; }
+        
+        .premium-btn {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            border: 0.5px solid var(--slate-border);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+        .premium-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+        .premium-btn:active { transform: scale(0.97); opacity: 0.8; }
+
+        .sidebar-item { border-left: 1px solid transparent; transition: all 0.4s ease; margin-bottom: 4px; }
+        .sidebar-item.active { border-left-color: #94a3b8; background: rgba(255, 255, 255, 0.03); }
+
+        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent); background-size: 200% 100%; animation: shimmer 5s infinite; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        .workspace-transition { transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        #command-menu { 
+            transform: translateY(15px); 
+            opacity: 0; 
+            pointer-events: none; 
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            background: rgba(12, 12, 15, 0.95);
+            border: 0.5px solid rgba(255,255,255,0.1);
+        }
+        #command-menu.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
+
+        .sidebar-dock {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
+            background: linear-gradient(0deg, rgba(8,8,10,1) 0%, rgba(8,8,10,0.8) 70%, transparent 100%);
+            backdrop-filter: blur(10px);
+        }
+
+        .sync-indicator {
+            width: 6px; height: 6px; border-radius: 50%; background-color: #ef4444; transition: background-color 0.5s ease;
+        }
+        .sync-active { background-color: #22c55e; box-shadow: 0 0 10px #22c55e; }
     </style>
 </head>
 <body class="antialiased relative">
