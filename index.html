@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Eternal | Secure Archival Core</title>
+    <title>The Eternal</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn.vectorstock.com/i/1000v/35/48/infinity-line-symbol-on-black-background-vector-28923548.jpg">
     
     <!-- PWA Meta -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -69,14 +72,24 @@
         .ql-font-playfair { font-family: 'Playfair Display', serif; }
         .ql-font-jetbrains { font-family: 'JetBrains Mono', monospace; }
 
-        /* Fix Quill Font Picker Labels */
+        /* Fix Quill Font Picker Labels & Items */
         .ql-snow .ql-picker.ql-font .ql-picker-label::before,
-        .ql-snow .ql-picker.ql-font .ql-picker-item::before { content: 'Standard'; }
-        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="inter"]::before { content: 'Standard'; }
-        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="cinzel"]::before { content: 'Eternal'; }
-        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="garamond"]::before { content: 'Scholarly'; }
-        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before { content: 'Imperial'; }
-        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="jetbrains"]::before { content: 'Technical'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-item::before { content: 'Standard'; font-family: 'Inter', sans-serif; }
+        
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="inter"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="inter"]::before { content: 'Standard'; font-family: 'Inter', sans-serif; }
+        
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="cinzel"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="cinzel"]::before { content: 'Eternal'; font-family: 'Cinzel', serif; }
+        
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="garamond"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="garamond"]::before { content: 'Scholarly'; font-family: 'EB Garamond', serif; }
+        
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="playfair"]::before { content: 'Imperial'; font-family: 'Playfair Display', serif; }
+        
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="jetbrains"]::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="jetbrains"]::before { content: 'Technical'; font-family: 'JetBrains Mono', monospace; }
 
         .ql-toolbar.ql-snow { 
             border: none; background: rgba(15, 15, 18, 0.9); border-bottom: 0.5px solid var(--slate-border); 
