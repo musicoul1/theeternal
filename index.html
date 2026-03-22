@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Eternal</title>
+    <title>The Eternal | Secure Archival Core</title>
     
     <!-- PWA Meta -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -35,6 +35,838 @@
             --slate-border: rgba(255, 255, 255, 0.08);
         }
 
+        * { -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            margin: 0; padding: 0; width: 100vw; height: 100vh; overflow: hidden; 
+            background-color: var(--space-black); color: #f1f5f9; font-family: 'Inter', sans-serif; 
+            display: flex; flex-direction: column; 
+        }
+        @media (min-width: 1024px) { body { flex-direction: row; } }
+        
+        .vignette {
+            position: fixed; inset: 0; pointer-events: none;
+            background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.6) 100%);
+            z-index: 5;
+        }
+
+        .glass-panel {
+            background: rgba(10, 10, 12, 0.82);
+            backdrop-filter: blur(40px) saturate(160%);
+            -webkit-backdrop-filter: blur(40px) saturate(160%);
+            border: 0.5px solid var(--slate-border);
+            box-shadow: 0 10px 50px -10px rgba(0, 0, 0, 0.95);
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 3px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+
+        /* Font Engine Mapping */
+        .ql-font-inter { font-family: 'Inter', sans-serif; }
+        .ql-font-cinzel { font-family: 'Cinzel', serif; }
+        .ql-font-garamond { font-family: 'EB Garamond', serif; }
+        .ql-font-playfair { font-family: 'Playfair Display', serif; }
+        .ql-font-jetbrains { font-family: 'JetBrains Mono', monospace; }
+
+        /* Fix Quill Font Picker Labels */
+        .ql-snow .ql-picker.ql-font .ql-picker-label::before,
+        .ql-snow .ql-picker.ql-font .ql-picker-item::before { content: 'Standard'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="inter"]::before { content: 'Standard'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="cinzel"]::before { content: 'Eternal'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="garamond"]::before { content: 'Scholarly'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair"]::before { content: 'Imperial'; }
+        .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="jetbrains"]::before { content: 'Technical'; }
+
+        .ql-toolbar.ql-snow { 
+            border: none; background: rgba(15, 15, 18, 0.9); border-bottom: 0.5px solid var(--slate-border); 
+            padding: 8px; display: flex; flex-wrap: wrap; gap: 4px; 
+        }
+        .ql-container.ql-snow { border: none !important; color: #f8fafc; font-size: 1rem; }
+        .ql-editor { padding: 1.5rem; line-height: 1.8; font-weight: 300; letter-spacing: 0.015em; }
+        
+        @media (min-width: 768px) { .ql-editor { padding: 3rem 4rem; line-height: 2; } }
+        @media (min-width: 1280px) { .ql-editor { padding: 4rem 8rem; } }
+
+        .ql-snow .ql-stroke { stroke: #94a3b8; stroke-width: 1.5px; }
+        .ql-snow .ql-picker { color: #94a3b8; font-size: 11px; }
+        .ql-snow .ql-picker-options { background-color: #0c0c0e !important; border: 0.5px solid var(--slate-border) !important; border-radius: 8px; z-index: 100; }
+
+        .logo-glow { text-shadow: 0 0 30px rgba(255, 255, 255, 0.4); letter-spacing: 0.3em; }
+        
+        .premium-btn {
+            background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+            border: 0.5px solid var(--slate-border);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .premium-btn:hover {
+            background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.04) 100%);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(255,255,255,0.05);
+        }
+
+        .sidebar-item { border-left: 1px solid transparent; transition: all 0.3s ease; }
+        .sidebar-item.active { border-left-color: #64748b; background: rgba(255, 255, 255, 0.03); }
+
+        .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent); background-size: 200% 100%; animation: shimmer 4s infinite; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+        #command-menu { opacity: 0; pointer-events: none; transform: translateY(10px); transition: all 0.3s ease; }
+        #command-menu.active { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .input-field:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.06);
+        }
+    </style>
+</head>
+<body class="antialiased relative">
+
+    <div class="vignette"></div>
+    <div id="canvas-container" class="fixed inset-0 z-0 pointer-events-none"></div>
+
+    <!-- HOME SCREEN -->
+    <div id="homepage-overlay" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/20 backdrop-blur-[2px]">
+        <div class="absolute top-6 right-6 md:top-10 md:right-10 flex items-center gap-4">
+            <button id="auth-status-btn" onclick="openAuthModal()" class="text-white/40 hover:text-white transition-all text-[10px] uppercase tracking-[0.2em] font-bold border border-white/10 px-4 py-2 rounded-full">
+                Sign In
+            </button>
+            <button onclick="toggleFullscreen()" class="text-white/30 hover:text-white transition-all p-2">
+                <i id="fullscreen-icon-home" class="ph ph-corners-out text-2xl"></i>
+            </button>
+        </div>
+
+        <div class="flex flex-col items-center text-center px-6 max-w-lg">
+            <i class="ph ph-infinity text-5xl md:text-6xl text-white mb-6 md:mb-8 drop-shadow-[0_0_25px_rgba(255,255,255,0.5)]"></i>
+            <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold text-white mb-4 md:mb-6 logo-glow uppercase" style="font-family: 'Cinzel', serif;">The Eternal</h1>
+            <p class="text-white font-semibold tracking-[0.4em] md:tracking-[0.6em] mb-10 md:mb-12 uppercase text-[9px] md:text-xs opacity-90">Infinite Archival Core</p>
+            
+            <button onclick="enterWorkspace()" class="premium-btn group py-5 md:py-6 px-10 md:px-16 text-white rounded-full font-bold transition-all backdrop-blur-md uppercase tracking-[0.4em] text-[10px] md:text-[11px] shadow-2xl relative overflow-hidden">
+                <span class="relative z-10 flex items-center gap-4" id="enter-btn-text">Sign In to Enter <i class="ph ph-lock-key"></i></span>
+                <div class="shimmer absolute inset-0"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/90 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-500 p-6">
+        <div class="glass-panel p-8 md:p-12 rounded-[2rem] max-w-md w-full border-white/10 scale-95 transition-all shadow-3xl text-center relative">
+            <button onclick="closeAuthModal()" class="absolute top-6 right-6 text-slate-500 hover:text-white"><i class="ph ph-x text-2xl"></i></button>
+            
+            <h2 id="auth-title" class="text-2xl font-light tracking-[0.2em] mb-2 uppercase text-white/90" style="font-family: 'Cinzel', serif;">Identity Verification</h2>
+            <p id="auth-subtitle" class="text-[9px] text-slate-500 mb-8 tracking-[0.3em] uppercase font-bold">Secure cross-device archival synchronization.</p>
+            
+            <div class="flex flex-col gap-4 mb-6">
+                <input type="email" id="auth-email" placeholder="Archival Email" class="input-field text-sm">
+                <input type="password" id="auth-password" placeholder="Access Cipher" class="input-field text-sm">
+            </div>
+            
+            <button onclick="handleAuth()" id="auth-main-btn" class="w-full py-4 premium-btn text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.3em] mb-4">Initialize Session</button>
+            
+            <div class="relative py-4 mb-4">
+                <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/5"></div></div>
+                <div class="relative flex justify-center text-[8px] uppercase tracking-widest"><span class="bg-transparent px-2 text-slate-600">OR</span></div>
+            </div>
+            
+            <button onclick="handleGoogleAuth()" class="w-full py-4 bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-white/10 rounded-xl font-bold text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 transition-all">
+                <i class="ph ph-google-logo text-lg"></i> Sign in with Google
+            </button>
+            
+            <p id="auth-toggle-text" class="mt-8 text-[9px] text-slate-500 uppercase tracking-widest">
+                No record found? <button onclick="toggleAuthMode()" class="text-white hover:underline">Establish Account</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- WORKSPACE SCREEN -->
+    <div id="workspace-overlay" class="workspace-transition absolute inset-0 z-10 flex w-full h-full p-2 sm:p-5 gap-3 lg:gap-5 bg-transparent opacity-0 pointer-events-none transform scale-100 hidden">
+        <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"></div>
+
+        <aside id="sidebar" class="glass-panel fixed inset-y-2 left-2 w-[calc(100%-1rem)] max-w-[300px] lg:relative lg:inset-0 lg:w-72 lg:max-w-none z-40 flex flex-col rounded-[1.5rem] md:rounded-[2rem] overflow-hidden transition-transform duration-500 -translate-x-[110%] lg:translate-x-0">
+            <div class="p-6 md:p-8 border-b border-white/5 flex flex-col gap-2 relative">
+                <button onclick="toggleSidebar()" class="lg:hidden absolute top-6 right-6 text-slate-500 hover:text-white transition-colors p-1"><i class="ph ph-x text-2xl"></i></button>
+
+                <div class="flex items-center gap-3 cursor-pointer group" onclick="exitWorkspace()">
+                    <i class="ph ph-infinity text-xl text-slate-400 group-hover:text-white transition-colors"></i>
+                    <h1 class="text-lg font-bold tracking-[0.2em] text-white/90" style="font-family: 'Cinzel', serif;">ETERNAL</h1>
+                </div>
+                <span class="text-[8px] tracking-[0.3em] text-slate-500 uppercase font-bold">Terminal Sector 001</span>
+            </div>
+
+            <!-- User Profile Section -->
+            <div id="user-profile" class="px-6 py-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div id="user-avatar" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-slate-400 overflow-hidden">
+                        <i class="ph ph-user"></i>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span id="user-display-name" class="text-[9px] text-white/80 font-bold truncate tracking-wider uppercase">Guest User</span>
+                        <span id="user-email" class="text-[7px] text-slate-500 truncate lowercase">offline@archival.core</span>
+                    </div>
+                </div>
+                <button onclick="handleSignOut()" class="text-slate-600 hover:text-red-400 transition-colors p-1" title="Sever Connection"><i class="ph ph-sign-out text-lg"></i></button>
+            </div>
+
+            <div id="sidebar-content" class="flex-1 overflow-y-auto px-4 py-6 space-y-1.5 custom-scroll"></div>
+
+            <div class="p-4 md:p-6 border-t border-white/5 bg-black/20">
+                <div id="command-menu" class="absolute left-4 right-4 bottom-20 md:bottom-24 glass-panel rounded-2xl overflow-hidden z-50">
+                    <button onclick="createNewDocument('root')" class="w-full p-4 flex items-center gap-4 text-left hover:bg-white/[0.03] transition-all">
+                        <i class="ph ph-plus-circle text-slate-400 text-lg"></i>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-white/70">New Record</span>
+                    </button>
+                    <button onclick="openFolderModal()" class="w-full p-4 flex items-center gap-4 text-left hover:bg-white/[0.03] transition-all">
+                        <i class="ph ph-folder-plus text-slate-400 text-lg"></i>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-white/70">Establish Sector</span>
+                    </button>
+                </div>
+                <button id="command-toggle" onclick="toggleCommandMenu()" class="premium-btn w-full py-4 px-4 text-white/60 hover:text-white rounded-xl text-[9px] font-bold uppercase tracking-[0.3em] transition-all flex items-center justify-between group">
+                    <span>Initialize</span>
+                    <i class="ph ph-caret-up group-hover:translate-y-[-2px] transition-transform" id="command-caret"></i>
+                </button>
+            </div>
+
+            <div class="px-8 py-4 text-[8px] text-slate-600 flex items-center justify-between tracking-[0.2em] uppercase font-bold">
+                <span class="flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-slate-800" id="status-dot"></div> <span id="db-status-text">OFFLINE</span>
+                </span>
+                <i class="ph ph-shield-check text-base hover:text-slate-300 cursor-pointer"></i>
+            </div>
+        </aside>
+
+        <!-- Main Panel -->
+        <main class="flex-1 glass-panel rounded-[1.5rem] md:rounded-[2rem] flex flex-col overflow-hidden h-full relative z-10 shadow-3xl">
+            <header class="px-4 py-4 md:px-8 lg:px-12 md:py-6 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
+                <div class="flex items-center gap-3 md:gap-6 flex-1 min-w-0">
+                    <button onclick="toggleSidebar()" class="lg:hidden text-slate-400 p-2"><i class="ph ph-list text-2xl"></i></button>
+                    <div class="flex flex-col gap-1 w-full max-w-2xl">
+                        <input type="text" id="doc-title" placeholder="Entry Designation..." class="bg-transparent text-lg md:text-2xl font-light text-white outline-none w-full focus:text-slate-200 placeholder:opacity-30 truncate" value="Archival Record" style="font-family: 'Cinzel', serif;">
+                        <div class="text-[7px] md:text-[8px] uppercase tracking-[0.4em] text-slate-500 font-bold flex items-center gap-2">
+                            SYSTEM <i class="ph ph-caret-right text-[6px]"></i> <span id="current-loc-label" class="text-slate-400 truncate">CORE ARCHIVE</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 md:gap-2">
+                    <button onclick="exitWorkspace()" class="hidden sm:block p-2 text-slate-500 hover:text-white transition-all rounded-xl" title="Exit"><i class="ph ph-house-line text-xl"></i></button>
+                    <button onclick="toggleFullscreen()" class="hidden sm:block p-2 text-slate-500 hover:text-white transition-all rounded-xl" title="Immersive"><i id="fullscreen-icon" class="ph ph-corners-out text-xl"></i></button>
+                    <button onclick="deleteCurrentDocument()" id="delete-btn" class="hidden p-2 text-red-900/40 hover:text-red-500 transition-all rounded-xl"><i class="ph ph-trash-simple text-xl"></i></button>
+                    <button onclick="saveDocument()" class="ml-2 py-3 px-4 md:px-8 premium-btn text-white/80 hover:text-white rounded-xl text-[8px] md:text-[9px] font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] transition-all flex items-center gap-2">
+                        <i class="ph ph-fingerprint text-lg"></i> <span class="hidden xs:inline">Preserve</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto custom-scroll bg-black/5">
+                <div class="max-w-4xl mx-auto min-h-full py-8 md:py-16 px-4 md:px-0">
+                    <div id="editor"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="folder-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-2xl opacity-0 pointer-events-none transition-all duration-500 p-6">
+        <div class="glass-panel p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] max-w-md w-full border-white/10 scale-95 transition-all shadow-3xl" id="folder-modal-content">
+            <h2 class="text-xl md:text-2xl font-light tracking-[0.2em] mb-4 uppercase text-white/90" style="font-family: 'Cinzel', serif;">New Archival Sector</h2>
+            <p class="text-[9px] text-slate-500 mb-8 md:mb-10 tracking-[0.3em] uppercase font-bold">Initialize categorization containment.</p>
+            <input type="text" id="folder-name-input" placeholder="Sector Name..." class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white outline-none text-sm mb-10 focus:border-white/30 transition-all">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button onclick="closeFolderModal()" class="order-2 sm:order-1 flex-1 py-4 text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] hover:text-white transition-colors">Abort</button>
+                <button onclick="submitNewFolder()" class="order-1 sm:order-2 flex-1 py-4 premium-btn text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.3em]">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="rules-modal" class="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-500 p-6">
+        <div class="glass-panel p-8 md:p-12 rounded-[2rem] max-w-lg w-full border-red-500/30 scale-95 transition-all shadow-[0_0_50px_rgba(239,68,68,0.1)] text-center relative">
+            <button onclick="document.getElementById('rules-modal').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('rules-modal').querySelector('.glass-panel').classList.add('scale-95');" class="absolute top-6 right-6 text-slate-500 hover:text-white"><i class="ph ph-x text-2xl"></i></button>
+            <i class="ph ph-shield-warning text-5xl text-red-500 mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]"></i>
+            <h2 class="text-xl font-light tracking-[0.2em] mb-2 uppercase text-white/90" style="font-family: 'Cinzel', serif;">Database Locked</h2>
+            <p class="text-[10px] text-slate-400 mb-6 tracking-wide leading-relaxed">Your Firebase database is blocking access. You must update your Firestore Security Rules in the Firebase Console to allow read/write operations.</p>
+            <div class="bg-black/50 p-4 rounded-xl text-left border border-white/5 mb-6 relative group">
+                <pre id="rules-code" class="text-[10px] text-emerald-400 font-mono overflow-x-auto">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</pre>
+                <button onclick="const ta = document.createElement('textarea'); ta.value = document.getElementById('rules-code').innerText; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); window.showToast('Rules Copied');" class="absolute top-2 right-2 p-2 bg-white/10 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-opacity" title="Copy Rules"><i class="ph ph-copy"></i></button>
+            </div>
+            <p class="text-[9px] text-slate-500 mb-6 uppercase tracking-widest">Go to Firebase Console &rarr; Firestore &rarr; Rules tab, paste the code above, and Publish.</p>
+            <button onclick="document.getElementById('rules-modal').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('rules-modal').querySelector('.glass-panel').classList.add('scale-95');" class="w-full py-4 premium-btn text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.3em]">I have updated the rules</button>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+        import { 
+            getAuth, onAuthStateChanged, 
+            signInWithEmailAndPassword, createUserWithEmailAndPassword, 
+            signOut, GoogleAuthProvider, signInWithPopup, signInWithCustomToken,
+            setPersistence, browserLocalPersistence
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyArmDPmEovOn8FAWggCukVDNW_jizbx4PY",
+            authDomain: "the-eternal-550ce.firebaseapp.com",
+            projectId: "the-eternal-550ce",
+            storageBucket: "the-eternal-550ce.firebasestorage.app",
+            messagingSenderId: "610399696800",
+            appId: "1:610399696800:web:39d2b9c70a4a7ae3aa96c5",
+            measurementId: "G-5FF7E755H8"
+        };
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'the-eternal-v1';
+        const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth, analytics, currentUser = null;
+        let quill = null, folders = [], documents = [], currentFolderId = null, currentDocumentId = null;
+        let unsubDocs = null, unsubFolders = null;
+        let authMode = 'login';
+        let isInitialLoad = true;
+
+        // Initialization
+        async function initSystems() {
+            initStars();
+            initEditor();
+
+            const app = initializeApp(firebaseConfig);
+            analytics = getAnalytics(app);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            // Set explicit local persistence so you stay logged in across reloads
+            await setPersistence(auth, browserLocalPersistence);
+
+            // Environment specific tokens (if applicable)
+            if (initialToken) {
+                try {
+                    await signInWithCustomToken(auth, initialToken);
+                } catch (tokenErr) {
+                    console.warn("External platform token bypassed. Using direct Firebase Auth.");
+                }
+            }
+
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                updateAuthUI(user);
+                
+                const statusDot = document.getElementById('status-dot');
+                const statusText = document.getElementById('db-status-text');
+                const enterBtnText = document.getElementById('enter-btn-text');
+
+                if (user) {
+                    isInitialLoad = true;
+                    setupRealtimeSync();
+                    if (statusDot) statusDot.style.backgroundColor = '#94a3b8';
+                    if (statusText) statusText.innerText = 'SYSTEM ONLINE';
+                    if (enterBtnText) enterBtnText.innerHTML = 'Enter Workspace <i class="ph ph-arrow-right"></i>';
+                } else {
+                    if (statusDot) statusDot.style.backgroundColor = '#1e293b';
+                    if (statusText) statusText.innerText = 'SYSTEM OFFLINE';
+                    if (enterBtnText) enterBtnText.innerHTML = 'Sign In to Enter <i class="ph ph-lock-key"></i>';
+                    
+                    // Securely wipe local memory and listeners upon log out
+                    if (unsubDocs) unsubDocs();
+                    if (unsubFolders) unsubFolders();
+                    documents = [];
+                    folders = [];
+                    currentDocumentId = null;
+                    currentFolderId = null;
+                    if (quill) quill.root.innerHTML = '';
+                    document.getElementById('doc-title').value = '';
+                    window.renderSidebar();
+                    window.exitWorkspace(); // Force exit
+                }
+            });
+        }
+
+        function updateAuthUI(user) {
+            const btn = document.getElementById('auth-status-btn');
+            const nameEl = document.getElementById('user-display-name');
+            const emailEl = document.getElementById('user-email');
+            const avatarEl = document.getElementById('user-avatar');
+
+            if (user) {
+                btn.innerText = "LINKED";
+                btn.classList.add('border-slate-400', 'text-slate-300');
+                nameEl.innerText = user.displayName || user.email?.split('@')[0] || "Authenticated User";
+                emailEl.innerText = user.email || "Platform Authenticated";
+                if (user.photoURL) {
+                    avatarEl.innerHTML = `<img src="${user.photoURL}" class="w-full h-full object-cover">`;
+                } else {
+                    avatarEl.innerHTML = `<i class="ph ph-user"></i>`;
+                }
+            } else {
+                btn.innerText = "SIGN IN";
+                btn.classList.remove('border-slate-400', 'text-slate-300');
+                nameEl.innerText = "Guest User";
+                emailEl.innerText = "offline@archival.core";
+                avatarEl.innerHTML = `<i class="ph ph-user"></i>`;
+            }
+        }
+
+        // AUTH HANDLERS
+        window.openAuthModal = () => {
+            const m = document.getElementById('auth-modal');
+            m.classList.remove('opacity-0', 'pointer-events-none');
+            m.querySelector('.glass-panel').classList.remove('scale-95');
+        };
+
+        window.closeAuthModal = () => {
+            const m = document.getElementById('auth-modal');
+            m.classList.add('opacity-0', 'pointer-events-none');
+            m.querySelector('.glass-panel').classList.add('scale-95');
+        };
+
+        window.toggleAuthMode = () => {
+            authMode = authMode === 'login' ? 'signup' : 'login';
+            document.getElementById('auth-title').innerText = authMode === 'login' ? 'Identity Verification' : 'New Archival Link';
+            document.getElementById('auth-main-btn').innerText = authMode === 'login' ? 'Initialize Session' : 'Create Record';
+            document.getElementById('auth-toggle-text').innerHTML = authMode === 'login' 
+                ? `No record found? <button onclick="window.toggleAuthMode()" class="text-white hover:underline">Establish Account</button>`
+                : `Existing Archive? <button onclick="window.toggleAuthMode()" class="text-white hover:underline">Sign In</button>`;
+        };
+
+        window.handleAuth = async () => {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if (!email || !password) return window.showToast("Credentials Missing");
+
+            try {
+                if (authMode === 'login') {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    window.showToast("Access Granted");
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    window.showToast("Record Established");
+                }
+                window.closeAuthModal();
+            } catch (err) {
+                const msg = err.code ? err.code.split('/')[1].replace(/-/g, ' ') : "System Error";
+                window.showToast(msg.toUpperCase());
+            }
+        };
+
+        window.handleGoogleAuth = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+                window.showToast("Google Link Active");
+                window.closeAuthModal();
+            } catch (err) {
+                window.showToast("Link Refused");
+            }
+        };
+
+        window.handleSignOut = async () => {
+            try {
+                await signOut(auth);
+                window.showToast("Identity Severed");
+            } catch (err) {
+                window.showToast("Logout Failed");
+            }
+        };
+
+        // SYNC LOGIC (Strict Firestore Only)
+        function setupRealtimeSync() {
+            if (!currentUser || !db) return;
+
+            if (unsubDocs) unsubDocs();
+            if (unsubFolders) unsubFolders();
+
+            const docCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs');
+            unsubDocs = onSnapshot(docCol, (snapshot) => {
+                documents = [];
+                snapshot.forEach(d => documents.push(d.data()));
+                window.renderSidebar();
+
+                // Auto load the first document on initial login sync
+                if (isInitialLoad && !currentDocumentId) {
+                    if (documents.length > 0) {
+                        window.openDocument(documents[0].id);
+                    } else {
+                        window.createNewDocument('root');
+                    }
+                    isInitialLoad = false;
+                }
+            }, (err) => {
+                console.error("Snapshot error:", err);
+                if (err.message.toLowerCase().includes("permission") || err.code === 'permission-denied') {
+                    const rm = document.getElementById('rules-modal');
+                    if (rm) {
+                        rm.classList.remove('opacity-0', 'pointer-events-none');
+                        rm.querySelector('.glass-panel').classList.remove('scale-95');
+                    }
+                }
+            });
+
+            const foldCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders');
+            unsubFolders = onSnapshot(foldCol, (snapshot) => {
+                folders = [];
+                snapshot.forEach(f => folders.push(f.data()));
+                window.renderSidebar();
+            }, (err) => {
+                console.error("Snapshot error:", err);
+                if (err.message.toLowerCase().includes("permission") || err.code === 'permission-denied') {
+                    const rm = document.getElementById('rules-modal');
+                    if (rm) {
+                        rm.classList.remove('opacity-0', 'pointer-events-none');
+                        rm.querySelector('.glass-panel').classList.remove('scale-95');
+                    }
+                }
+            });
+        }
+
+        // Action: Preserve
+        window.saveDocument = async () => {
+            if (!currentUser) {
+                window.openAuthModal();
+                return window.showToast("Authentication Required to Save");
+            }
+            
+            const title = document.getElementById('doc-title').value.trim() || 'Archival Record';
+            const content = quill ? quill.root.innerHTML : "";
+            const existing = documents.find(d => d.id === currentDocumentId);
+            const id = currentDocumentId || Math.random().toString(36).substr(2, 10);
+            
+            const data = { 
+                id, title, content, 
+                folderId: currentFolderId || 'root', 
+                created_at: existing?.created_at || new Date().toISOString(),
+                preserved_at: new Date().toISOString()
+            };
+            
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id);
+                await setDoc(docRef, data);
+                currentDocumentId = id;
+                window.showToast("Record Preserved");
+            } catch (err) { 
+                console.error(err);
+                if (err.message.toLowerCase().includes("permission") || err.code === 'permission-denied') {
+                    const rm = document.getElementById('rules-modal');
+                    if (rm) {
+                        rm.classList.remove('opacity-0', 'pointer-events-none');
+                        rm.querySelector('.glass-panel').classList.remove('scale-95');
+                    }
+                } else {
+                    window.showToast("Preservation Failed");
+                }
+            }
+        };
+
+        window.submitNewFolder = async () => {
+            if (!currentUser) return window.showToast("Authentication Required");
+            const name = document.getElementById('folder-name-input').value.trim();
+            if(!name) return;
+            const f = { id: Math.random().toString(36).substr(2, 10), name, created_at: new Date().toISOString() };
+            try {
+                const foldRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', f.id);
+                await setDoc(foldRef, f);
+                window.closeFolderModal();
+            } catch (err) { 
+                if (err.message.toLowerCase().includes("permission") || err.code === 'permission-denied') {
+                    const rm = document.getElementById('rules-modal');
+                    if (rm) {
+                        rm.classList.remove('opacity-0', 'pointer-events-none');
+                        rm.querySelector('.glass-panel').classList.remove('scale-95');
+                    }
+                } else {
+                    window.showToast("Sector Failed"); 
+                }
+            }
+        };
+
+        // UI HELPERS
+        window.enterWorkspace = () => {
+            // Block entry if not logged in
+            if (!currentUser) {
+                window.showToast("Sign in to access archive");
+                window.openAuthModal();
+                return;
+            }
+
+            const h = document.getElementById('homepage-overlay'), w = document.getElementById('workspace-overlay');
+            h.style.opacity = '0'; h.style.transform = 'scale(1.05)';
+            w.classList.remove('hidden'); 
+            setTimeout(() => {
+                h.classList.add('hidden');
+                w.classList.remove('opacity-0', 'pointer-events-none');
+                w.classList.add('opacity-100', 'pointer-events-auto');
+                window.renderSidebar();
+            }, 500);
+        };
+
+        window.exitWorkspace = () => {
+            const h = document.getElementById('homepage-overlay'), w = document.getElementById('workspace-overlay');
+            w.classList.add('opacity-0', 'pointer-events-none');
+            h.classList.remove('hidden');
+            setTimeout(() => { h.style.opacity = '1'; h.style.transform = 'scale(1)'; }, 50);
+            setTimeout(() => { w.classList.add('hidden'); }, 600);
+        };
+
+        window.toggleSidebar = () => {
+            const s = document.getElementById('sidebar'), b = document.getElementById('sidebar-backdrop');
+            const hidden = s.classList.contains('-translate-x-[110%]');
+            if(hidden) { s.classList.remove('-translate-x-[110%]'); b.classList.add('opacity-100', 'pointer-events-auto'); }
+            else { s.classList.add('-translate-x-[110%]'); b.classList.remove('opacity-100', 'pointer-events-auto'); }
+        };
+
+        window.toggleCommandMenu = () => {
+            const m = document.getElementById('command-menu'), c = document.getElementById('command-caret');
+            const act = m.classList.toggle('active');
+            c.classList.toggle('rotate-180', act);
+        };
+
+        window.createNewDocument = (fid = 'root') => {
+            currentDocumentId = null; currentFolderId = fid;
+            document.getElementById('doc-title').value = '';
+            if (quill) quill.root.innerHTML = '';
+            document.getElementById('delete-btn').classList.add('hidden');
+            window.renderSidebar();
+            if(window.innerWidth < 1024) window.toggleSidebar();
+            document.getElementById('command-menu').classList.remove('active');
+            document.getElementById('command-caret').classList.remove('rotate-180');
+        };
+
+        window.openDocument = (id) => {
+            const d = documents.find(d => d.id === id);
+            if(!d) return;
+            currentDocumentId = d.id; currentFolderId = d.folderId;
+            document.getElementById('doc-title').value = d.title;
+            if (quill) quill.root.innerHTML = d.content;
+            document.getElementById('delete-btn').classList.remove('hidden');
+            window.renderSidebar();
+            if(window.innerWidth < 1024) window.toggleSidebar();
+        };
+
+        window.deleteCurrentDocument = async () => {
+            if(!currentDocumentId || !currentUser) return;
+            const id = currentDocumentId;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id));
+                window.createNewDocument(currentFolderId);
+                window.showToast("Record Purged");
+            } catch (e) { window.showToast("Purge Failed"); }
+        };
+
+        window.deleteDocumentById = async (e, id) => {
+            e.stopPropagation();
+            if (!currentUser) return;
+            try { 
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_docs', id)); 
+                if(id === currentDocumentId) window.createNewDocument(currentFolderId);
+                window.showToast("Purged");
+            } catch (e) { window.showToast("Purge Failed"); }
+        };
+
+        window.deleteFolder = async (e, id) => {
+            e.stopPropagation();
+            if (!currentUser) return;
+            try { 
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'space_folders', id)); 
+                if(currentFolderId === id) currentFolderId = null;
+                window.renderSidebar();
+            } catch (e) { window.showToast("Purge Failed"); }
+        };
+
+        window.openFolderModal = () => {
+            document.getElementById('folder-modal').classList.remove('opacity-0', 'pointer-events-none');
+            document.getElementById('folder-modal-content').classList.remove('scale-95');
+            document.getElementById('command-menu').classList.remove('active');
+            document.getElementById('command-caret').classList.remove('rotate-180');
+        };
+
+        window.closeFolderModal = () => {
+            document.getElementById('folder-modal').classList.add('opacity-0', 'pointer-events-none');
+            document.getElementById('folder-modal-content').classList.add('scale-95');
+        };
+
+        window.openFolder = (id) => { currentFolderId = id; window.renderSidebar(); };
+        window.goBackToFolders = () => { currentFolderId = null; window.renderSidebar(); };
+
+        window.toggleFullscreen = () => {
+            const icons = [document.getElementById('fullscreen-icon'), document.getElementById('fullscreen-icon-home')];
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+                icons.forEach(i => { if(i) i.className = 'ph ph-corners-in text-xl'; });
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                icons.forEach(i => { if(i) i.className = 'ph ph-corners-out text-xl'; });
+            }
+        };
+
+        window.renderSidebar = () => {
+            const cont = document.getElementById('sidebar-content');
+            if(!cont) return;
+            let html = '';
+            const bread = document.getElementById('current-loc-label');
+            if (currentFolderId === null) {
+                if (bread) bread.innerText = 'CORE ARCHIVE';
+                html += `<div onclick="window.openFolder('root')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all ${currentFolderId === 'root' ? 'active' : 'hover:bg-white/[0.04]'}">
+                    <div class="flex items-center gap-4"><i class="ph ph-archive text-slate-500 text-lg"></i><span class="text-[10px] font-bold uppercase text-slate-300">Root Records</span></div>
+                    <span class="text-[9px] text-slate-600 font-black opacity-60">${documents.filter(d => d.folderId === 'root').length}</span>
+                </div>`;
+                folders.forEach(f => {
+                    html += `<div onclick="window.openFolder('${f.id}')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all hover:bg-white/[0.04]">
+                        <div class="flex items-center gap-4 min-w-0"><i class="ph ph-folder text-slate-600 text-lg flex-shrink-0"></i><span class="text-[10px] font-bold uppercase text-slate-200 truncate">${f.name}</span></div>
+                        <div class="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-all">
+                            <i class="ph ph-trash text-slate-700 hover:text-red-900 p-1" onclick="window.deleteFolder(event, '${f.id}')"></i>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                const f = folders.find(fold => fold.id === currentFolderId);
+                if (bread) bread.innerText = currentFolderId === 'root' ? 'ROOT SECTOR' : f?.name.toUpperCase();
+                html += `<button onclick="window.goBackToFolders()" class="text-slate-500 hover:text-white text-[9px] font-black uppercase flex items-center gap-2 mb-8 transition-all px-2"><i class="ph ph-arrow-left"></i> Systems Return</button>`;
+                const filtered = documents.filter(d => d.folderId === currentFolderId);
+                if (filtered.length === 0) {
+                   html += `<p class="px-2 text-[8px] text-slate-600 uppercase tracking-widest italic">No records initialized.</p>`;
+                }
+                filtered.forEach(d => {
+                    const active = d.id === currentDocumentId;
+                    html += `<div onclick="window.openDocument('${d.id}')" class="sidebar-item p-4 rounded-xl cursor-pointer flex justify-between items-center group transition-all ${active ? 'active' : 'hover:bg-white/[0.03]'}">
+                        <span class="text-[10px] font-bold uppercase text-slate-300 truncate mr-2">${d.title}</span>
+                        <i class="ph ph-trash text-slate-800 hover:text-red-900 opacity-0 group-hover:opacity-100 transition-all p-1" onclick="window.deleteDocumentById(event, '${d.id}')"></i>
+                    </div>`;
+                });
+            }
+            cont.innerHTML = html;
+        };
+
+        window.showToast = (m, duration = 3000) => {
+            const cont = document.getElementById('toast-container');
+            if (!cont) return;
+            const t = document.createElement('div');
+            t.className = `glass-panel border-white/10 p-4 md:p-5 rounded-2xl flex items-center gap-4 shadow-3xl pointer-events-auto transition-all duration-500 opacity-100 max-w-sm`;
+            const icon = (m.includes('DENIED') || m.includes('Failed') || m.includes('Error')) ? 'ph-warning text-amber-500' : 'ph-circle-wavy-check text-slate-400';
+            t.innerHTML = `<i class="ph ${icon} text-lg"></i><p class="text-[9px] font-bold uppercase text-slate-200 tracking-widest leading-relaxed">${m}</p>`;
+            cont.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 600); }, duration);
+        };
+
+        function initStars() {
+            const cont = document.getElementById('canvas-container');
+            if (!cont) return;
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 5000);
+            camera.position.z = 1000;
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            cont.appendChild(renderer.domElement);
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = 32; canvas.height = 32;
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+            gradient.addColorStop(0, 'rgba(255,255,255,1)');
+            gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+            gradient.addColorStop(0.5, 'rgba(255,255,255,0.2)');
+            gradient.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 32, 32);
+            const starTexture = new THREE.CanvasTexture(canvas);
+
+            const spectral = [0x9bb0ff, 0xaabfff, 0xffffff, 0xfbf8ff, 0xfff4e8, 0xffddb4, 0xffbd6f];
+            const starLayers = [];
+
+            const createLayer = (count, zRange, size, speed) => {
+                const geo = new THREE.BufferGeometry();
+                const pos = new Float32Array(count * 3);
+                const col = new Float32Array(count * 3);
+                for(let i=0; i < count; i++) {
+                    pos[i*3] = (Math.random() - 0.5) * 4000;
+                    pos[i*3+1] = (Math.random() - 0.5) * 4000;
+                    pos[i*3+2] = (Math.random() - 0.5) * zRange;
+                    const c = new THREE.Color(spectral[Math.floor(Math.random() * spectral.length)]);
+                    col[i*3] = c.r; col[i*3+1] = c.g; col[i*3+2] = c.b;
+                }
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+                const mat = new THREE.PointsMaterial({ size, map: starTexture, vertexColors: true, transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending });
+                const points = new THREE.Points(geo, mat);
+                scene.add(points);
+                return { points, speed, count };
+            };
+
+            starLayers.push(createLayer(3000, 4000, 2.0, 0.4));
+            starLayers.push(createLayer(2000, 3000, 3.5, 0.8));
+            starLayers.push(createLayer(1000, 2000, 5.5, 1.8));
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                starLayers.forEach(layer => {
+                    const positions = layer.points.geometry.attributes.position.array;
+                    for (let i = 0; i < layer.count; i++) {
+                        const zIdx = i * 3 + 2;
+                        positions[zIdx] += layer.speed;
+                        if (positions[zIdx] > 1000) positions[zIdx] = -3000;
+                    }
+                    layer.points.geometry.attributes.position.needsUpdate = true;
+                });
+                renderer.render(scene, camera);
+            };
+            animate();
+            window.addEventListener('resize', () => { renderer.setSize(window.innerWidth, window.innerHeight); camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); });
+        }
+
+        function initEditor() {
+            if (typeof Quill === 'undefined') return;
+            try {
+                if (window.QuillBlotFormatter) {
+                    const b = QuillBlotFormatter.default || QuillBlotFormatter;
+                    Quill.register('modules/blotFormatter', b);
+                }
+                
+                const Font = Quill.import('formats/font');
+                Font.whitelist = ['inter', 'cinzel', 'garamond', 'playfair', 'jetbrains'];
+                Quill.register(Font, true);
+                
+                quill = new Quill('#editor', {
+                    theme: 'snow',
+                    placeholder: 'Preserve archival data...',
+                    modules: { 
+                        toolbar: [
+                            [{ 'font': Font.whitelist }],
+                            [{ 'size': ['small', false, 'large', 'huge'] }],
+                            ['bold', 'italic', 'underline'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            [{ 'align': [] }],
+                            ['blockquote', 'code-block', 'formula'],
+                            ['clean']
+                        ],
+                        blotFormatter: {} 
+                    }
+                });
+                quill.root.classList.add('ql-font-inter');
+            } catch (err) { console.error(err); }
+        }
+
+        window.addEventListener('DOMContentLoaded', initSystems);
+    </script>
+</body>
+</html>
         * { -webkit-tap-highlight-color: transparent; }
 
         body { 
