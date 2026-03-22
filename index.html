@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Eternal</title>
+    <title>The Eternal | Secure Archival Core</title>
     
     <!-- Favicon -->
     <link rel="icon" href="https://cdn.vectorstock.com/i/1000v/35/48/infinity-line-symbol-on-black-background-vector-28923548.jpg">
@@ -107,6 +107,8 @@
 
         .ql-editor img, .ql-editor iframe, .ql-editor video { max-width: 100%; height: auto; border-radius: 8px; display: block; margin: 1rem auto; }
         .ql-editor iframe.ql-pdf, .ql-editor iframe.ql-video { height: 40vh; min-height: 250px; width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--slate-border); }
+        .ql-editor hr { border: 0; border-top: 1px solid var(--slate-border); margin: 2.5rem 0; opacity: 0.6; }
+
         @media (min-width: 768px) {
             .ql-editor iframe.ql-pdf, .ql-editor iframe.ql-video { height: 60vh; min-height: 450px; }
         }
@@ -967,6 +969,16 @@ service firebase.storage {
                 PdfBlot.tagName = 'iframe';
                 Quill.register(PdfBlot, true);
 
+                // Register Custom Divider Blot
+                class DividerBlot extends BlockEmbed {
+                    static create() {
+                        return super.create();
+                    }
+                }
+                DividerBlot.blotName = 'divider';
+                DividerBlot.tagName = 'hr';
+                Quill.register(DividerBlot, true);
+
                 quill = new Quill('#editor', {
                     theme: 'snow',
                     placeholder: 'Preserve archival data...',
@@ -978,14 +990,19 @@ service firebase.storage {
                                 ['bold', 'italic', 'underline'],
                                 [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                                 [{ 'align': [] }],
-                                ['blockquote', 'code-block', 'formula'],
+                                ['blockquote', 'code-block', 'formula', 'divider'],
                                 ['link', 'image', 'video', 'attachment'],
                                 ['clean']
                             ],
                             handlers: {
                                 'image': () => window.openMediaModal('image'),
                                 'video': () => window.openMediaModal('video'),
-                                'attachment': () => window.openMediaModal('file')
+                                'attachment': () => window.openMediaModal('file'),
+                                'divider': function() {
+                                    const range = quill.getSelection(true) || { index: quill.getLength() };
+                                    quill.insertEmbed(range.index, 'divider', true, 'user');
+                                    quill.setSelection(range.index + 1, 'silent');
+                                }
                             }
                         },
                         blotFormatter: {} 
@@ -997,6 +1014,12 @@ service firebase.storage {
                 const attachBtn = document.querySelector('.ql-attachment');
                 if (attachBtn) {
                     attachBtn.innerHTML = '<i class="ph ph-paperclip text-[15px] flex items-center justify-center h-full text-slate-400 hover:text-white transition-colors"></i>';
+                }
+
+                // Add custom icon for the divider button
+                const dividerBtn = document.querySelector('.ql-divider');
+                if (dividerBtn) {
+                    dividerBtn.innerHTML = '<i class="ph ph-minus text-[15px] flex items-center justify-center h-full text-slate-400 hover:text-white transition-colors"></i>';
                 }
             } catch (err) { console.error(err); }
         }
