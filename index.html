@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>The Eternal | Secure Archival Core</title>
+    <title>The Eternal</title>
     
     <!-- PWA Meta -->
     <meta name="mobile-web-app-capable" content="yes">
@@ -289,11 +289,13 @@
     </div>
 
     <div id="rules-modal" class="fixed inset-0 z-[120] flex items-center justify-center bg-black/90 backdrop-blur-xl opacity-0 pointer-events-none transition-all duration-500 p-6">
-        <div class="glass-panel p-8 md:p-12 rounded-[2rem] max-w-lg w-full border-red-500/30 scale-95 transition-all shadow-[0_0_50px_rgba(239,68,68,0.1)] text-center relative">
+        <div class="glass-panel p-8 md:p-12 rounded-[2rem] max-w-lg w-full border-red-500/30 scale-95 transition-all shadow-[0_0_50px_rgba(239,68,68,0.1)] text-center relative max-h-[90vh] overflow-y-auto custom-scroll">
             <button onclick="document.getElementById('rules-modal').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('rules-modal').querySelector('.glass-panel').classList.add('scale-95');" class="absolute top-6 right-6 text-slate-500 hover:text-white"><i class="ph ph-x text-2xl"></i></button>
             <i class="ph ph-shield-warning text-5xl text-red-500 mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]"></i>
             <h2 class="text-xl font-light tracking-[0.2em] mb-2 uppercase text-white/90" style="font-family: 'Cinzel', serif;">Database Locked</h2>
-            <p class="text-[10px] text-slate-400 mb-6 tracking-wide leading-relaxed">Your Firebase database is blocking access. You must update your Firestore Security Rules in the Firebase Console to allow read/write operations.</p>
+            <p class="text-[10px] text-slate-400 mb-6 tracking-wide leading-relaxed">Your Firebase project is blocking access. You must update your Security Rules in the Firebase Console to allow read/write operations for both Database and File Uploads.</p>
+            
+            <p class="text-[9px] text-slate-300 font-bold mb-2 uppercase tracking-widest text-left">1. Firestore Database Rules:</p>
             <div class="bg-black/50 p-4 rounded-xl text-left border border-white/5 mb-6 relative group">
                 <pre id="rules-code" class="text-[10px] text-emerald-400 font-mono overflow-x-auto">rules_version = '2';
 service cloud.firestore {
@@ -305,7 +307,20 @@ service cloud.firestore {
 }</pre>
                 <button onclick="const ta = document.createElement('textarea'); ta.value = document.getElementById('rules-code').innerText; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); window.showToast('Rules Copied');" class="absolute top-2 right-2 p-2 bg-white/10 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-opacity" title="Copy Rules"><i class="ph ph-copy"></i></button>
             </div>
-            <p class="text-[9px] text-slate-500 mb-6 uppercase tracking-widest">Go to Firebase Console &rarr; Firestore &rarr; Rules tab, paste the code above, and Publish.</p>
+
+            <p class="text-[9px] text-slate-300 font-bold mb-2 uppercase tracking-widest text-left">2. Storage Rules (For Files/Images):</p>
+            <div class="bg-black/50 p-4 rounded-xl text-left border border-white/5 mb-6 relative group">
+                <pre id="storage-rules-code" class="text-[10px] text-emerald-400 font-mono overflow-x-auto">rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}</pre>
+                <button onclick="const ta = document.createElement('textarea'); ta.value = document.getElementById('storage-rules-code').innerText; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); window.showToast('Storage Rules Copied');" class="absolute top-2 right-2 p-2 bg-white/10 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-opacity" title="Copy Rules"><i class="ph ph-copy"></i></button>
+            </div>
+            
             <button onclick="document.getElementById('rules-modal').classList.add('opacity-0', 'pointer-events-none'); document.getElementById('rules-modal').querySelector('.glass-panel').classList.add('scale-95');" class="w-full py-4 premium-btn text-white rounded-xl font-bold text-[10px] uppercase tracking-[0.3em]">I have updated the rules</button>
         </div>
     </div>
@@ -322,6 +337,7 @@ service cloud.firestore {
             setPersistence, browserLocalPersistence
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Configuration
         const firebaseConfig = {
@@ -337,7 +353,7 @@ service cloud.firestore {
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'the-eternal-v1';
         const initialToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        let db, auth, analytics, currentUser = null;
+        let db, auth, analytics, storage, currentUser = null;
         let quill = null, folders = [], documents = [], currentFolderId = null, currentDocumentId = null;
         let unsubDocs = null, unsubFolders = null;
         let authMode = 'login';
@@ -352,6 +368,7 @@ service cloud.firestore {
             analytics = getAnalytics(app);
             auth = getAuth(app);
             db = getFirestore(app);
+            storage = getStorage(app);
 
             // Set explicit local persistence so you stay logged in across reloads
             await setPersistence(auth, browserLocalPersistence);
@@ -765,6 +782,98 @@ service cloud.firestore {
             setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 600); }, duration);
         };
 
+        window.selectLocalFile = (type) => {
+            if (!currentUser) return window.showToast("Authentication Required to Upload");
+
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            if (type === 'image') input.setAttribute('accept', 'image/*');
+            else if (type === 'video') input.setAttribute('accept', 'video/*');
+            else input.setAttribute('accept', '*/*');
+
+            input.click();
+
+            input.onchange = async () => {
+                const file = input.files[0];
+                if (!file) return;
+
+                window.showToast(`Initiating Upload: ${file.name.substring(0, 20)}...`, 4000);
+                window.uploadToFirebase(file, type);
+            };
+        };
+
+        window.uploadToFirebase = async (file, type) => {
+            if (!storage || !currentUser) return;
+
+            const safeFileName = file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+            const storagePath = `artifacts/${appId}/users/${currentUser.uid}/uploads/${Date.now()}_${safeFileName}`;
+            const storageRef = ref(storage, storagePath);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            // Create a specific toast for progress
+            const cont = document.getElementById('toast-container');
+            const progressToast = document.createElement('div');
+            progressToast.className = `glass-panel border-white/10 p-4 rounded-2xl flex flex-col gap-2 shadow-3xl pointer-events-auto transition-all duration-500 opacity-100 w-64`;
+            progressToast.innerHTML = `
+                <div class="flex justify-between items-center w-full">
+                    <span class="text-[9px] font-bold uppercase text-slate-200 tracking-widest truncate flex-1">Uploading...</span>
+                    <span class="text-[8px] text-slate-400" id="prog-pct-${uploadTask.snapshot.ref.name}">0%</span>
+                </div>
+                <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full bg-archival-gold transition-all duration-300 w-0" id="prog-bar-${uploadTask.snapshot.ref.name}"></div>
+                </div>
+            `;
+            if (cont) cont.appendChild(progressToast);
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    const bar = document.getElementById(`prog-bar-${uploadTask.snapshot.ref.name}`);
+                    const pct = document.getElementById(`prog-pct-${uploadTask.snapshot.ref.name}`);
+                    if (bar) bar.style.width = progress + '%';
+                    if (pct) pct.innerText = Math.round(progress) + '%';
+                },
+                (error) => {
+                    console.error("Upload failed", error);
+                    progressToast.style.opacity = '0';
+                    setTimeout(() => progressToast.remove(), 600);
+                    
+                    if (error.code === 'storage/unauthorized') {
+                        const rm = document.getElementById('rules-modal');
+                        if (rm) {
+                            rm.classList.remove('opacity-0', 'pointer-events-none');
+                            rm.querySelector('.glass-panel').classList.remove('scale-95');
+                        }
+                    } else {
+                        window.showToast("Upload Failed.", 5000);
+                    }
+                },
+                async () => {
+                    progressToast.style.opacity = '0';
+                    setTimeout(() => progressToast.remove(), 600);
+                    
+                    try {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        
+                        const range = quill.getSelection(true);
+                        if (type === 'image') {
+                            quill.insertEmbed(range.index, 'image', downloadURL);
+                        } else if (type === 'video') {
+                            quill.insertEmbed(range.index, 'video', downloadURL);
+                        } else {
+                            quill.insertText(range.index, ` 📎 ${file.name} `, 'link', downloadURL);
+                        }
+                        quill.setSelection(range.index + 1);
+                        window.showToast("Asset Preserved in Cloud");
+                        
+                        window.saveDocument();
+                    } catch (err) {
+                        console.error("Failed getting URL", err);
+                    }
+                }
+            );
+        };
+
         function initStars() {
             const cont = document.getElementById('canvas-container');
             if (!cont) return;
@@ -847,19 +956,33 @@ service cloud.firestore {
                     theme: 'snow',
                     placeholder: 'Preserve archival data...',
                     modules: { 
-                        toolbar: [
-                            [{ 'font': Font.whitelist }],
-                            [{ 'size': ['small', false, 'large', 'huge'] }],
-                            ['bold', 'italic', 'underline'],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            [{ 'align': [] }],
-                            ['blockquote', 'code-block', 'formula'],
-                            ['clean']
-                        ],
+                        toolbar: {
+                            container: [
+                                [{ 'font': Font.whitelist }],
+                                [{ 'size': ['small', false, 'large', 'huge'] }],
+                                ['bold', 'italic', 'underline'],
+                                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                [{ 'align': [] }],
+                                ['blockquote', 'code-block', 'formula'],
+                                ['link', 'image', 'video', 'attachment'],
+                                ['clean']
+                            ],
+                            handlers: {
+                                'image': () => window.selectLocalFile('image'),
+                                'video': () => window.selectLocalFile('video'),
+                                'attachment': () => window.selectLocalFile('file')
+                            }
+                        },
                         blotFormatter: {} 
                     }
                 });
                 quill.root.classList.add('ql-font-inter');
+
+                // Add custom icon for the attachment button
+                const attachBtn = document.querySelector('.ql-attachment');
+                if (attachBtn) {
+                    attachBtn.innerHTML = '<i class="ph ph-paperclip text-[15px] flex items-center justify-center h-full text-slate-400 hover:text-white transition-colors"></i>';
+                }
             } catch (err) { console.error(err); }
         }
 
